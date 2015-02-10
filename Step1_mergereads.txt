@@ -13,7 +13,7 @@ import os, sys, glob, multiprocessing
 # Test data directory
 path = "/Volumes/Trochilidae/Pythonscripts/Testpycode/testingmerge"
 
-def mergefiles_ver3():
+def mergefiles_ver3(elements):
 		myfolders = [root for root, dirs, files in os.walk(path)]
 		del myfolders[0]
 #		print myfolders
