@@ -13,7 +13,7 @@ import os, sys, glob, multiprocessing
 # Test data directory
 path = "/Volumes/Trochilidae/Pythonscripts/Testpycode/testingmerge"
 
-def mergefiles_ver3(elements):
+def mergefiles(elements):
 		myfolders = [root for root, dirs, files in os.walk(path)]
 		del myfolders[0]
 #		print myfolders
@@ -55,8 +55,8 @@ def samplist():
 	del myfolders[0]
 	print myfolders
 	
-	pool = multiprocessing.Pool()
-	pool.map(mergefiles_ver3, myfolders)
+	pool = multiprocessing.Pool() #can specify number of processes (process = ) or leave undefined 
+	pool.map(mergefiles, myfolders)
 	
 if __name__ == "__main__":
 	samplist()
