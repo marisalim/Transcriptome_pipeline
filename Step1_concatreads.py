@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Code to merge read 1 files and read 2 files
+# Code to concatenate read 1 files and read 2 files
 # File structure: For each sample, there is a folder that contains the read files. 
 
 # import modules 
@@ -13,7 +13,7 @@ import os, sys, glob, multiprocessing
 # Test data directory
 path = "/Volumes/Trochilidae/Pythonscripts/Testpycode/testingmerge"
 
-def mergefiles(elements):
+def concatfiles(elements):
 		myfolders = [root for root, dirs, files in os.walk(path)]
 		del myfolders[0]
 #		print myfolders
@@ -56,7 +56,7 @@ def samplist():
 	print myfolders
 	
 	pool = multiprocessing.Pool() #can specify number of processes (process = ) or leave undefined 
-	pool.map(mergefiles, myfolders)
+	pool.map(concatfiles, myfolders)
 	
 if __name__ == "__main__":
 	samplist()
