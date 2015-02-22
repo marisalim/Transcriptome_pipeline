@@ -52,6 +52,7 @@ def passfilter(element):
 	outname = element.split("/")
 	outname = outname[-1]
 	outname = outname[:-3]
+	outname = 'test_' + outname
 	
 	variables = dict(
 	index = str(filenames), 
