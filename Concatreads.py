@@ -1,18 +1,17 @@
 #!/usr/bin/env python
 
 # Code to concatenate read 1 files and read 2 files
-# File structure: For each sample, there is a folder that contains the read files. 
+# File structure: All files in one folder called Passfilterreads/ 
+
+# Set path - where the data is (but this script resides in a folder called Concatreads)
+path = '/Volumes/Trochilidae/TestingDat/Passfilterreads/'
 
 # import modules 
 import os, sys, glob, multiprocessing
 
-# Set working directory (folder that contains the sample directory)
-# Real data directory 
-#path = "/Volumes/Trochilidae/TestingDat"
+ID = 'CGML'
 
-# Test data directory
-path = "/Volumes/Trochilidae/Pythonscripts/Testpycode/testingmerge"
-
+# one method 
 def concatfiles(elements):
 		myfolders = [root for root, dirs, files in os.walk(path)]
 		del myfolders[0]
@@ -60,3 +59,51 @@ def samplist():
 	
 if __name__ == "__main__":
 	samplist()
+	
+# another method
+def concatreads(element):
+	print element
+	
+	variables = dict(
+	index = str(element))
+		
+	commands = """
+	echo "Processing {index}"
+	echo "This is {index}_R1.fq and this is {index}_R2.fq"
+	
+	#cat *{index}_*_R1_*fastq > {index}_R1.fq
+	#cat *{index}_*_R2_*fastq > {index}_R2.fq
+	
+	""".format(**variables)
+		
+	cmd_list = commands.split('\n')
+	for cmd in cmd_list:
+		os.system(cmd)
+
+myfilepaths = []
+for root, dirs, files in os.walk(path):
+	for filename in files:
+		path = os.path.join(root, filename)
+		if ID in path:
+			myfilepaths.append(path)
+		else:
+			continue
+			
+pool = multiprocessing.Pool()
+pool.map(concatreads, myfilepaths)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	

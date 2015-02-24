@@ -2,8 +2,8 @@
 
 # Code for removing reads that failed Illumina's quality control filters and modify sequence identifiers
 
-# set path
-path = '/Volumes/Trochilidae/Pythonscripts/Testpycode/passfilter'
+# set path - where the data is (but this script resides in a folder called Passfilterreads)
+path = '/Volumes/Trochilidae/Pythonscripts/TestingDat/Rawreads'
 
 # import modules
 import os, sys, multiprocessing 
