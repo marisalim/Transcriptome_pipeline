@@ -3,8 +3,9 @@
 # Code to concatenate read 1 files and read 2 files
 # File structure: All files in one folder called Passfilterreads/ 
 
-# Set path - where the data is (but this script resides in a folder called Concatreads)
+# Set path - where the data and script are
 path = '/Volumes/Trochilidae/TestingDat/Passfilterreads/'
+#path = '/Volumes/Trochilidae/Pythonscripts/Testpycode/testingmerge/samp4' #test data
 
 # import modules 
 import os, sys, glob, multiprocessing
@@ -60,39 +61,62 @@ def samplist():
 if __name__ == "__main__":
 	samplist()
 	
-# another method
-def concatreads(element):
-	print element
+# another method - without multiprocessing
+def concat(element):
+	for samps in element:	
+		variables = dict(index=samps)
+		
+		commands = """
+		echo "Processing {index}"
+		cat *{index}_*_R1_*.fastq.gz > {index}_R1.fq.gz
+		cat *{index}_*_R2_*.fastq.gz > {index}_R2.fq.gz
+		echo "Moving concatenated files to Concatreads directory"
+		mv {index}*.fq.gz /Volumes/Trochilidae/TestingDat/Concatreads
+		""".format(**variables)
+		
+		command_list = commands.split('\n')
+		for cmd in command_list:
+			os.system(cmd)
+			
+mysamps = []
+for root, dirs, files in os.walk(path):
+	for filenames in files:
+		if ID in filenames:
+			sampname = filenames.split('_')
+			sampname = sampname[0] # 0 for test data, 1 for real data
+			mysamps.append(sampname)
+	mysamps = set(mysamps) # remove duplicates
+
+concat(mysamps)
+
+# another method - with multiprocessing
+def concat(element):
 	
-	variables = dict(
-	index = str(element))
+	variables = dict(index=element)
 		
 	commands = """
 	echo "Processing {index}"
-	echo "This is {index}_R1.fq and this is {index}_R2.fq"
-	
-	#cat *{index}_*_R1_*fastq > {index}_R1.fq
-	#cat *{index}_*_R2_*fastq > {index}_R2.fq
-	
+	cat *{index}_*_R1_*.fastq.gz > {index}_R1.fq.gz
+	cat *{index}_*_R2_*.fastq.gz > {index}_R2.fq.gz
+	echo "Moving concatenated files to Concatreads directory"
+	mv {index}*.fq.gz /Volumes/Trochilidae/TestingDat/Concatreads
 	""".format(**variables)
 		
-	cmd_list = commands.split('\n')
-	for cmd in cmd_list:
+	command_list = commands.split('\n')
+	for cmd in command_list:
 		os.system(cmd)
-
-myfilepaths = []
-for root, dirs, files in os.walk(path):
-	for filename in files:
-		path = os.path.join(root, filename)
-		if ID in path:
-			myfilepaths.append(path)
-		else:
-			continue
 			
+mysamps = []
+for root, dirs, files in os.walk(path):
+	for filenames in files:
+		if ID in filenames:
+			sampname = filenames.split('_')
+			sampname = sampname[1] # 0 for test data, 1 for real data
+			mysamps.append(sampname)
+	mysamps = set(mysamps) # remove duplicates
+
 pool = multiprocessing.Pool()
-pool.map(concatreads, myfilepaths)
-
-
+pool.map(concat, mysamps)
 
 
 
