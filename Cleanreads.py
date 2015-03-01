@@ -28,12 +28,12 @@ def trim():
 		variables = dict(
 		adapterfile = '/Volumes/Trochilidae/TestingDat/Cleanreads/MLadapters.fa',
 		trimmomatic = '/usr/local/bin/Trimmomatic-0.33/trimmomatic-0.33.jar',
-		read1in = asample + '_R1.fq.gz',
-		read2in = asample + '_R2.fq.gz',
-		read1out = asample + '_R1_trimmed.fq.gz',
-		read2out = asample + '_R2_trimmed.fq.gz',
-		read1out_unpaired = asample + '_R1_trimmedunpaired.fq.gz',
-		read2out_unpaired = asample + '_R2_trimmedunpaired.fq.gz',
+		read1in = asample + '_testclean_R1.fq.gz',
+		read2in = asample + '_testclean_R2.fq.gz',
+		read1out = '/Volumes/Trochilidae/TestingDat/Cleanreads/Testreads/TestcleanOUT/' + asample + '_R1_trimmed.fq.gz',
+		read2out = '/Volumes/Trochilidae/TestingDat/Cleanreads/Testreads/TestcleanOUT/' + asample + '_R2_trimmed.fq.gz',
+		read1out_unpaired = '/Volumes/Trochilidae/TestingDat/Cleanreads/Testreads/TestcleanOUT/' + asample + '_R1_trimmedunpaired.fq.gz',
+		read2out_unpaired = '/Volumes/Trochilidae/TestingDat/Cleanreads/Testreads/TestcleanOUT/' + asample + '_R2_trimmedunpaired.fq.gz',
 		sampleID = asample)
 		
 		commands = """
