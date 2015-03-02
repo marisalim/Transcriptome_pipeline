@@ -26,6 +26,7 @@ def passfilter(element):
 		commands = """
 		echo "Processing {index}"
 		echo "This is the outfile: {outfile}"
+		# filter out reads that failed, then rename the sequence headers (this is for trimmomatic)
 		gzcat {index} | grep -A 3 '^@.* [^:]*:N:[^:]:' | grep -v '^--$' | sed 's/ 1:N:0:.*/\\/1/g' | sed 's/ 2:N:0.*/\\/2/g' > {outfile}
 		echo "Compressing {outfile}
 		gzip {outfile}
