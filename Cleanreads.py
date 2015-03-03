@@ -102,6 +102,8 @@ def trim():
 
 		flash {read1out} {read2out} -M 100 -m 5 -x 0.05 -f 300 -o {sampleID}
 	
+		echo "Ok, FLASH is done running! Now, we will format the output files."
+	
 		cat {sampleID}.notCombined_1.fastq > {sampleID}_final1.fq
 		cat {sampleID}.notCombined_2.fastq > {sampleID}_final2.fq
 
@@ -111,6 +113,8 @@ def trim():
 	
 		cat {sampleID}.notCombined_1.fastq {read1out_unpaired} {sampleID}.extendedFrags_left.fastq > {sampleID}_trinity_left.fq
 		cat {sampleID}.notCombined_2.fastq {read2out_unpaired} > {sampleID}_trinity_right.fq
+		
+		echo "File outputs are done. Time to clean up!"
 		rm {read1out} {read1out_unpaired} {read2out} {read2out_unpaired} {sampleID}.extendedFrags_left.fastq {sampleID}.extendedFrags.fastq {sampleID}.notCombined_1.fastq {sampleID}.notCombined_2.fastq {sampleID}*hist*
 
 		""".format(**variables)
@@ -144,7 +148,7 @@ def trim(element):
 	java -classpath {trimmomatic} org.usadellab.trimmomatic.TrimmomaticPE -phred33 {read1in} {read2in} {read1out} {read1out_unpaired} {read2out} {read2out_unpaired} ILLUMINACLIP:{adfile}:2:40:15 SLIDINGWINDOW:4:20 MINLEN:36 LEADING:3 TRAILING:3
 
 	flash {read1out} {read2out} -M 100 -m 5 -x 0.05 -f 300 -o {sampleID}
-	
+	echo "Ok, FLASH is done running! Now, we will format the output files."
 	cat {sampleID}.notCombined_1.fastq > {sampleID}_final1.fq
 	cat {sampleID}.notCombined_2.fastq > {sampleID}_final2.fq
 
@@ -154,6 +158,7 @@ def trim(element):
 	
 	cat {sampleID}.notCombined_1.fastq {read1out_unpaired} {sampleID}.extendedFrags_left.fastq > {sampleID}_trinity_left.fq
 	cat {sampleID}.notCombined_2.fastq {read2out_unpaired} > {sampleID}_trinity_right.fq
+	echo "File outputs are done. Time to clean up!"
 	rm {read1out} {read1out_unpaired} {read2out} {read2out_unpaired} {sampleID}.extendedFrags_left.fastq {sampleID}.extendedFrags.fastq {sampleID}.notCombined_1.fastq {sampleID}.notCombined_2.fastq {sampleID}*hist*
 
 	""".format(**variables)
