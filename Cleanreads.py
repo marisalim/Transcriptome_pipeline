@@ -83,15 +83,15 @@ def trim():
 	
 	for asample in mysamps:
 		variables = dict(
-		adapterfile = '/Volumes/Trochilidae/TestingDat/Cleanreads/MLadapters.fa',
-		trimmomatic = '/usr/local/bin/Trimmomatic-0.33/trimmomatic-0.33.jar',
-		read1in = asample + '_R1.fq.gz',
-		read2in = asample + '_R2.fq.gz',
-		read1out = './CleanreadsOUT/' + asample + '_R1_trimmed.fq.gz',
-		read2out = './CleanreadsOUT/' + asample + '_R2_trimmed.fq.gz',
-		read1out_unpaired = './CleanreadsOUT/' + asample + '_R1_trimmedunpaired.fq.gz',
-		read2out_unpaired = './CleanreadsOUT/' + asample + '_R2_trimmedunpaired.fq.gz',
-		sampleID = './CleanreadsOUT/' + asample)
+        adapterfile = './MLadapters.fa', #note: because the current directory is TestingDat/Cleanreads, don't need to put full path (in fact i get e$
+        trimmomatic = '/usr/local/bin/Trimmomatic-0.33/trimmomatic-0.33.jar',
+        read1in = '/Volumes/Trochilidae/TestingDat/Concatreads/' + asample + '_R1.fq.gz',
+        read2in = '/Volumes/Trochilidae/TestingDat/Concatreads/' + asample + '_R2.fq.gz',
+        read1out = './CleanreadsOUT/' + asample + '_R1_trimmed.fq.gz',
+        read2out = './CleanreadsOUT/' + asample + '_R2_trimmed.fq.gz',
+        read1out_unpaired = './CleanreadsOUT/' + asample + '_R1_trimmedunpaired.fq.gz',
+        read2out_unpaired = './CleanreadsOUT/' + asample + '_R2_trimmedunpaired.fq.gz',
+        sampleID = './CleanreadsOUT/' + asample)
 		
 		commands = """
 		echo "These are the input files: {read1in} and {read2in}"
@@ -126,15 +126,15 @@ trim()
 def trim(element):
 	
 	variables = dict(
-	adapterfile = '/Volumes/Trochilidae/TestingDat/Cleanreads/MLadapters.fa',
-	trimmomatic = '/usr/local/bin/Trimmomatic-0.33/trimmomatic-0.33.jar',
-	read1in = element + '_R1.fq.gz',
-	read2in = element + '_R2.fq.gz',
-	read1out = './CleanreadsOUT/' + element + '_R1_trimmed.fq.gz',
-	read2out = './CleanreadsOUT/' + element + '_R2_trimmed.fq.gz',
-	read1out_unpaired = './CleanreadsOUT/' + element + '_R1_trimmedunpaired.fq.gz',
-	read2out_unpaired = './CleanreadsOUT/' + element + '_R2_trimmedunpaired.fq.gz',
-	sampleID = './CleanreadsOUT/' + element)
+	adapterfile = './MLadapters.fa', #note: because the current directory is TestingDat/Cleanreads, don't need to put full path (in fact i get e$
+    trimmomatic = '/usr/local/bin/Trimmomatic-0.33/trimmomatic-0.33.jar',
+    read1in = '/Volumes/Trochilidae/TestingDat/Concatreads/' + element + '_R1.fq.gz',
+    read2in = '/Volumes/Trochilidae/TestingDat/Concatreads/' + element + '_R2.fq.gz',
+    read1out = './CleanreadsOUT/' + element + '_R1_trimmed.fq.gz',
+    read2out = './CleanreadsOUT/' + element + '_R2_trimmed.fq.gz',
+    read1out_unpaired = './CleanreadsOUT/' + element + '_R1_trimmedunpaired.fq.gz',
+    read2out_unpaired = './CleanreadsOUT/' + element + '_R2_trimmedunpaired.fq.gz',
+    sampleID = './CleanreadsOUT/' + element)
 		
 	commands = """
 	echo "These are the input files: {read1in} and {read2in}"
