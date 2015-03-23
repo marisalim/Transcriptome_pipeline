@@ -43,7 +43,7 @@ ID = 'CGML'
 		# echo "These are the read 1 output files: {read1out} and {read1out_unpaired}"
 		# echo "These are the read 2 output files: {read2out} and {read2out_unpaired}"
 		
-		# java -classpath {trimmomatic} org.usadellab.trimmomatic.TrimmomaticPE -phred33 {read1in} {read2in} {read1out} {read1out_unpaired} {read2out} {read2out_unpaired} ILLUMINACLIP:{adfile}:2:40:15 SLIDINGWINDOW:4:20 MINLEN:36 LEADING:3 TRAILING:3
+		# java -classpath {trimmomatic} org.usadellab.trimmomatic.TrimmomaticPE -phred33 {read1in} {read2in} {read1out} {read1out_unpaired} {read2out} {read2out_unpaired} ILLUMINACLIP:{adapterfile}:2:40:15 SLIDINGWINDOW:4:20 MINLEN:36 LEADING:3 TRAILING:3
 
 		# flash {read1out} {read2out} -M 100 -m 5 -x 0.05 -f 300 -o {sampleID}
 	
@@ -98,7 +98,7 @@ def trim():
 		echo "These are the read 1 output files: {read1out} and {read1out_unpaired}"
 		echo "These are the read 2 output files: {read2out} and {read2out_unpaired}"
 		
-		java -classpath {trimmomatic} org.usadellab.trimmomatic.TrimmomaticPE -phred33 {read1in} {read2in} {read1out} {read1out_unpaired} {read2out} {read2out_unpaired} ILLUMINACLIP:{adfile}:2:40:15 SLIDINGWINDOW:4:20 MINLEN:36 LEADING:3 TRAILING:3
+		java -classpath {trimmomatic} org.usadellab.trimmomatic.TrimmomaticPE -phred33 {read1in} {read2in} {read1out} {read1out_unpaired} {read2out} {read2out_unpaired} ILLUMINACLIP:{adapterfile}:2:40:15 SLIDINGWINDOW:4:20 MINLEN:36 LEADING:3 TRAILING:3
 
 		flash {read1out} {read2out} -M 100 -m 5 -x 0.05 -f 300 -o {sampleID}
 	
