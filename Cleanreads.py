@@ -145,7 +145,7 @@ def trim(element):
 	echo "These are the read 1 output files: {read1out} and {read1out_unpaired}"
 	echo "These are the read 2 output files: {read2out} and {read2out_unpaired}"
 	
-	java -classpath {trimmomatic} org.usadellab.trimmomatic.TrimmomaticPE -phred33 {read1in} {read2in} {read1out} {read1out_unpaired} {read2out} {read2out_unpaired} ILLUMINACLIP:{adfile}:2:40:15 SLIDINGWINDOW:4:20 MINLEN:36 LEADING:3 TRAILING:3
+	java -classpath {trimmomatic} org.usadellab.trimmomatic.TrimmomaticPE -phred33 {read1in} {read2in} {read1out} {read1out_unpaired} {read2out} {read2out_unpaired} ILLUMINACLIP:{adapterfile}:2:40:15 SLIDINGWINDOW:4:20 MINLEN:36 LEADING:3 TRAILING:3
 
 	flash {read1out} {read2out} -M 100 -m 5 -x 0.05 -f 300 -o {sampleID}
 	echo "Ok, FLASH is done running! Now, we will format the output files."
@@ -167,20 +167,22 @@ def trim(element):
 	for cmd in command_list:
 		os.system(cmd)
 
-myfiles = []
-for root, dirs, files in os.walk(path):
-	for filenames in files:
-		if ID in filenames:
-			myfiles.append(filenames)
-		else:
-			continue
+def samplist():
+	myfiles = []
+	for root, dirs, files in os.walk(path):
+		for filenames in files:
+			if ID in filenames:
+				myfiles.append(filenames)
+			else:
+				continue
 	
-mysamps = [i.split('_', 1)[0] for i in myfiles]
-mysamps = set(mysamps)
+	mysamps = [i.split('_', 1)[0] for i in myfiles]
+	mysamps = set(mysamps)
 
-pool = multiprocessing.Pool()
-pool.map(trim, mysamps)
+	pool = multiprocessing.Pool()
+	pool.map(trim, mysamps)
 
-
+if __name__ == "__main__":
+	samplist()
 
 
