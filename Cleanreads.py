@@ -139,7 +139,7 @@ def trim(element):
     read1out_unpaired = './CleanreadsOUT/' + element + '_R1_trimmedunpaired.fq.gz',
     read2out_unpaired = './CleanreadsOUT/' + element + '_R2_trimmedunpaired.fq.gz',
     sampleID = './CleanreadsOUT/' + element)
-		
+	
 	commands = """
 	echo "These are the input files: {read1in} and {read2in}"
 	echo "These are the read 1 output files: {read1out} and {read1out_unpaired}"
