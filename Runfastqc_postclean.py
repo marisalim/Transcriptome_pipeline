@@ -8,7 +8,7 @@ import os, sys, multiprocessing
 # set path
 path = '/Volumes/Trochilidae/TestingDat/Cleanreads/CleanreadsOUT'
 
-ID = 'CGML'
+ID = 'final'
 
 def runfastqc_postclean(element):
 	variables = dict(sample = element)
