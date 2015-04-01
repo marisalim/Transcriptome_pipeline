@@ -1,20 +1,30 @@
 #!/usr/bin/env python
 
-import os, sys, multiprocessing
+import os, sys
 
 path = '/Volumes/Trochilidae/TestingDat/CleanreadsOUT'
+
+ID = 'CGML'
 
 def assemblereads(element):
 
 	variables = dict(
 	sample = element,
-	read1 = element + '_subset_trinity_left.fq',
-	read2 = element + '_subset_trinity_right.fq'
+	read1 = element + '_trinity_left.fq',
+	read2 = element + '_trinity_right.fq'
 	) #name your output
 
-	## change directory
+	# Trinity commands
+	# seqType = type of reads, fa or fq
+	# JM = Jellyfish Memory, number of GB of system memory to use for k-mer counting by jellyfish
+	# left = (for paired reads) left reads
+	# right = (for paired reads) right reads 
+	# output = name of directory for output (will be created if it doesn't already exist) default: "/usr/uo/7/mlim/trinity_out_dir"
+	# CPU = number of CPUs to use, default is 2
+	# full_cleanup = only retain the Trinity fasta file, rename as ${output_dir}.Trinity.fasta
+	
 	commands = """
-	/home/analysis/Downloads/trinityrnaseq_r20140413p1/Trinity --seqType fq --JM 10G --left {read1} --right {read2} --output {sample} --CPU 12 --full_cleanup
+	Trinity --seqType fq --JM 10G --left {read1} --right {read2} --output {sample} --CPU 12 --full_cleanup
 	""".format(**variables)
 
 	command_list = commands.split("\n")
@@ -35,8 +45,3 @@ def samplist():
 	mysamps = [i.split('_', 1)[0] for i in myfiles]
 	mysamps = set(mysamps)
 
-	pool = multiprocessing.Pool()
-	pool.map(assemblereads, mysamps)
-
-if __name__ == "__main__":
-	samplist()
