@@ -2,7 +2,7 @@
 
 import os, sys
 
-path = '/Volumes/Trochilidae/TestingDat/CleanreadsOUT'
+path = '/Volumes/Trochilidae/TestingDat/Cleanreads/CleanreadsOUT'
 
 ID = 'CGML'
 
