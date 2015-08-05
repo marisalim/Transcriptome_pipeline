@@ -1,4 +1,11 @@
+#Marisa Lim (c)2015
+
+
 library(biomaRt)
+biocLite("GO.db")
+library("GO.db")
+
+
 ensembl = useMart("ensembl", dataset="tguttata_gene_ensembl")
 filters = listFilters(ensembl)
 head(filters)
@@ -8,8 +15,7 @@ head(attributes)
 test <- 'ENSTGUP00000000081'
 getBM(attributes=c('ensembl_peptide_id', 'go_id', 'hgnc_symbol'), filters='ensembl_peptide_id', values=test, mart=ensembl)
 
-biocLite("GO.db")
-library("GO.db")
+
 go_search <- getBM(attributes="go_id", filters="ensembl_peptide_id", values = test, mart = ensembl)
 Term(go_search$go_id)
 as.data.frame(Term(go_search$go_id))
