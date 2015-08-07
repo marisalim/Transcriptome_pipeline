@@ -75,3 +75,6 @@ class(goterms)
 
 hits_go2 <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol', 'description'), filters='ensembl_peptide_id', values=hitsvec, mart=ensembl)
 head(hits_go2)
+dim(hits_go2)
+
+write.csv(hits_go2, "Sharedhits_gene_descript.csv")
