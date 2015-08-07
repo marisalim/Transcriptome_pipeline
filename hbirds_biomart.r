@@ -28,7 +28,7 @@ length(hitsvec)
 
 #Use biomaRt to find gene names and GO info for these hits
 library(biomaRt)
-biocLite("GO.db")
+#biocLite("GO.db")
 library("GO.db")
 
 ensembl = useMart("ensembl", dataset="tguttata_gene_ensembl")
@@ -38,6 +38,8 @@ attributes = listAttributes(ensembl)
 head(attributes)
 
 # test code for biomaRt
+grep("description",attributes$name, ignore.case=T, value=T)
+
 test <- 'ENSTGUP00000000081'
 getBM(attributes=c('ensembl_peptide_id', 'go_id', 'hgnc_symbol'), filters='ensembl_peptide_id', values=test, mart=ensembl)
 
@@ -71,4 +73,5 @@ goterms <- as.data.frame(Term(hits_go$go_id))
 head(goterms)
 class(goterms)
 
-
+hits_go2 <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol', 'description'), filters='ensembl_peptide_id', values=hitsvec, mart=ensembl)
+head(hits_go2)
