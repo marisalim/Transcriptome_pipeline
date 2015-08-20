@@ -1,8 +1,9 @@
 #Marisa Lim (c)2015
 MLwd = "C:/Users/mcwlim/Dropbox/Marisacompfiles/Transcriptome files"
 setwd(MLwd)
-
+# -------------------------------------
 # find RBHs shared between all species
+# -------------------------------------
 rbh <- read.csv("rbh_all.csv", header=T)
 head(rbh)
 dim(rbh)
@@ -26,7 +27,9 @@ head(hits)
 hitsvec <- as.vector(hits)
 length(hitsvec) 
 
+# ---------------------------------------------------------
 #Use biomaRt to find gene names and GO info for these hits
+# ---------------------------------------------------------
 library(biomaRt)
 #biocLite("GO.db")
 library("GO.db")
@@ -78,3 +81,66 @@ head(hits_go2)
 dim(hits_go2)
 
 write.csv(hits_go2, "Sharedhits_gene_descript.csv")
+
+hits_list <- data.frame(Ensembl_id = hits_go2[,1])
+write.csv(hits_list, "Sharedhits_list.csv")
+
+# -------------------------------------------------------------------------
+# Match ensembl id of shared hits to contig ID (need this to find sequence)
+# -------------------------------------------------------------------------
+require(plyr)
+# load rbh files for each species
+a_rbh <- read.table("RBH/A_rbh.out")
+b_rbh <- read.table("RBH/B_rbh.out")
+c_rbh <- read.table("RBH/C_rbh.out")
+d_rbh <- read.table("RBH/D_rbh.out")
+e_rbh <- read.table("RBH/E_rbh.out")
+f_rbh <- read.table("RBH/F_rbh.out")
+g_rbh <- read.table("RBH/G_rbh.out")
+h_rbh <- read.table("RBH/H_rbh.out")
+i_rbh <- read.table("RBH/I_rbh.out")
+j_rbh <- read.table("RBH/J_rbh.out")
+k_rbh <- read.table("RBH/K_rbh.out")
+l_rbh <- read.table("RBH/L_rbh.out")
+
+matchcontig <- function(infile, samp){
+  colnames(infile) <- c("contig_id", "Ensembl_id")
+  hits2 <- join(hits_list, infile, by="Ensembl_id")
+  replacebreak <- gsub(pattern="\\|", replacement=" ", x=hits2$contig_id)
+  splitbreak <- strsplit(replacebreak, split=" ")
+  contigname <- sapply(splitbreak, function(x){
+    paste(x[[1]])
+  })
+  hits3 <- data.frame("Ensembl_id"=hits2$Ensembl_id, "Contig_id_long"=hits2$contig_id, "Contig_id"=contigname)
+  write.table(hits3, paste(samp,"_hits3.txt", sep=""))
+}
+matchcontig(a_rbh, "a")
+matchcontig(b_rbh, "b")
+matchcontig(c_rbh, "c")
+matchcontig(d_rbh, "d")
+matchcontig(e_rbh, "e")
+matchcontig(f_rbh, "f")
+matchcontig(g_rbh, "g")
+matchcontig(h_rbh, "h")
+matchcontig(i_rbh, "i")
+matchcontig(j_rbh, "j")
+matchcontig(k_rbh, "k")
+matchcontig(l_rbh, "l")
+
+# --------------------------------
+# Match contig id and get sequence
+# --------------------------------
+library(seqinr)
+a_fasta <- read.fasta("trinity_assembly/Trinity_A.fasta", seqtype="DNA", as.string = T)
+a_fasta[1]
+a_seqs <- list()
+for(i in 1:length(a_hits2)){
+  if(a_hits2$contig_id[i] == a_fasta[i]){
+    a_seqs[[i]] <- a_fasta[i]
+  } else{
+    i <- i + 1
+  }
+}
+
+
+
