@@ -92,75 +92,71 @@ write.csv(hits_list, "Sharedhits_list.csv")
 require(plyr)
 library(seqinr)
 
-# load shared genes list
-hits_list2 <- read.csv("Sharedhits_list.csv", header=T)
-hits_list2 <- data.frame("Ensembl_id"=hits_list2$Ensembl_id)
-head(hits_list2)
-
-# load rbh files for each species
-a_rbh <- read.table("RBH/A_rbh.out")
-b_rbh <- read.table("RBH/B_rbh.out")
-c_rbh <- read.table("RBH/C_rbh.out")
-d_rbh <- read.table("RBH/D_rbh.out")
-e_rbh <- read.table("RBH/E_rbh.out")
-f_rbh <- read.table("RBH/F_rbh.out")
-g_rbh <- read.table("RBH/G_rbh.out")
-h_rbh <- read.table("RBH/H_rbh.out")
-i_rbh <- read.table("RBH/I_rbh.out")
-j_rbh <- read.table("RBH/J_rbh.out")
-k_rbh <- read.table("RBH/K_rbh.out")
-l_rbh <- read.table("RBH/L_rbh.out")
-
-# load fasta files (assemblies)
-a_fasta <- read.fasta("trinity_assembly/Trinity_A.fasta", seqtype="DNA", as.string=T, forceDNAtolower=F)
-b_fasta <- read.fasta("trinity_assembly/Trinity_B.fasta", seqtype="DNA", as.string=T, forceDNAtolower=F)
-c_fasta <- read.fasta("trinity_assembly/Trinity_C.fasta", seqtype="DNA", as.string=T, forceDNAtolower=F)
-d_fasta <- read.fasta("trinity_assembly/Trinity_D.fasta", seqtype="DNA", as.string=T, forceDNAtolower=F)
-e_fasta <- read.fasta("trinity_assembly/Trinity_E.fasta", seqtype="DNA", as.string=T, forceDNAtolower=F)
-f_fasta <- read.fasta("trinity_assembly/Trinity_F.fasta", seqtype="DNA", as.string=T, forceDNAtolower=F)
-g_fasta <- read.fasta("trinity_assembly/Trinity_G.fasta", seqtype="DNA", as.string=T, forceDNAtolower=F)
-h_fasta <- read.fasta("trinity_assembly/Trinity_H.fasta", seqtype="DNA", as.string=T, forceDNAtolower=F)
-i_fasta <- read.fasta("trinity_assembly/Trinity_I.fasta", seqtype="DNA", as.string=T, forceDNAtolower=F)
-j_fasta <- read.fasta("trinity_assembly/Trinity_J.fasta", seqtype="DNA", as.string=T, forceDNAtolower=F)
-k_fasta <- read.fasta("trinity_assembly/Trinity_K.fasta", seqtype="DNA", as.string=T, forceDNAtolower=F)
-l_fasta <- read.fasta("trinity_assembly/Trinity_L.fasta", seqtype="DNA", as.string=T, forceDNAtolower=F)
-
 # Function to match shared hits list to contig ids, and then use contig ids to pull out the sequences [note: the rbhhits and rhbseqs files need to be made first]
-matchcontig_getseq <- function(infile_rbh, infile_fasta, samp){
-  # match contig id from species rbh to shared gene list
-  colnames(infile_rbh) <- c("contig_id", "Ensembl_id")
-  hits2 <- join(hits_list, infile_rbh, by="Ensembl_id")
-  # modify contig id so that it matches name in assembly fasta file
-  replacebreak <- gsub(pattern="\\|", replacement=" ", x=hits2$contig_id)
-  splitbreak <- strsplit(replacebreak, split=" ")
-  contigname <- sapply(splitbreak, function(x){
-    paste(x[[1]])
-  })
-  # add modified contig id to df
-  hits3 <- data.frame("Ensembl_id"=hits2$Ensembl_id, "Contig_id_long"=hits2$contig_id, "Contig_id"=contigname)
-  write.table(hits3, paste("rbhhits/",samp,"_hits3.txt", sep=""))
-  # make fasta list to df
-  fastadf <- ldply(.data=infile_fasta)
-  # save file
-  colnames(fastadf) <- c("Contig_id", "Sequence")
-  # match contig id from rbh shared hits for given species to contig id in assembly file
-  seqs <- join(hits3, fastadf, by="Contig_id") 
-  # save file
-  write.table(seqs, paste("rbhseqs/",samp,"_seqs.txt", sep=""))
-}
+matchcontig_getseq <- function(){
+  # load shared genes list
+  hits_list2 <- read.csv("Sharedhits_list.csv", header=T)
+  hits_list2 <- data.frame("Ensembl_id"=hits_list2$Ensembl_id)
+  #head(hits_list2)
+  
+  # Create infile lists
+  rbhfolder = "RBH/"
+  rbhfiles <- list.files(paste(rbhfolder,sep="/"),pattern=".out",full.name=T,recursive=T)
+  fastafolder = "trinity_assembly/"
+  fastafiles <- list.files(paste(fastafolder,sep="/"),pattern=".fasta",full.name=T,recursive=T)
 
-matchcontig_getseq(a_rbh, a_fasta, "a")
-matchcontig_getseq(b_rbh, b_fasta, "b")
-matchcontig_getseq(c_rbh, c_fasta, "c")
-matchcontig_getseq(d_rbh, d_fasta, "d")
-matchcontig_getseq(e_rbh, e_fasta, "e")
-matchcontig_getseq(f_rbh, f_fasta, "f")
-matchcontig_getseq(g_rbh, g_fasta, "g")
-matchcontig_getseq(h_rbh, h_fasta, "h")
-matchcontig_getseq(i_rbh, i_fasta, "i")
-matchcontig_getseq(j_rbh, j_fasta, "j")
-matchcontig_getseq(k_rbh, k_fasta, "k")
-matchcontig_getseq(l_rbh, l_fasta, "l")
+  # Create sample id vector
+  sampleids <- c("a_Phart", "b_Cmuls", "c_Pmala", "d_Acast", "e_Ccoru", "f_Ccoel", "g_Cviol", "h_Aamaz", "i_Mphoe", "j_Aviri", "k_Amela", "l_Pgiga")
+  
+  # Match shared hits to species rbh
+  for(i in 1:length(rbhfiles)){
+    # load infile_rbh
+    infile_rbh <- read.table(rbhfiles[i])
+    colnames(infile_rbh) <- c("contig_id", "Ensembl_id")
+    
+    # get sample id
+    samp <- sampleids[i]
+    
+    # add samp column to infile_rbh
+    infile_rbh["Sample_id"] <- NA
+    infile_rbh$Sample_id <- samp
+    # match contig id from species rbh to shared gene list
+    hits2 <- join(hits_list2, infile_rbh, by="Ensembl_id")
+    # modify contig id so that it matches name in assembly fasta file
+    replacebreak <- gsub(pattern="\\|", replacement=" ", x=hits2$contig_id)
+    splitbreak <- strsplit(replacebreak, split=" ")
+    contigname <- sapply(splitbreak, function(x){
+      paste(x[[1]])
+    })
+    # add modified contig id to df
+    hits3 <- data.frame("Ensembl_id"=hits2$Ensembl_id, "Contig_id_long"=hits2$contig_id, "Contig_id"=contigname, "Sample_id"=hits2$Sample_id)
+    write.table(hits3, paste("rbhhits/",samp,"_hits3.txt", sep=""))
+  }
+  
+  # Need to load hits3 files for next loop
+  hits3folder <- "rbhhits/"
+  hits3files <- list.files(paste(hits3folder, sep="/"), pattern=".txt", full.name=T, recursive=T)
+  
+  # Match contig ID to get sequences from fasta files
+  for(j in 1:length(fastafiles)){
+    # load infile_fasta
+    infile_fasta <- read.fasta(fastafiles[j], seqtype="DNA", as.string=T, forceDNAtolower=F)
+    
+    # make fasta list to df
+    fastadf <- ldply(.data=infile_fasta)
+    colnames(fastadf) <- c("Contig_id", "Sequence")
+    
+    # load the hits3 lists
+    hits3 <- read.table(hits3files[j])
+    # get sample id
+    samp <- sampleids[j]
+    # match contig id from rbh shared hits for given species to contig id in assembly file
+    seqs <- join(hits3, fastadf, by="Contig_id") 
+    # save file
+    write.table(seqs, paste("rbhseqs/",samp,"_seqs.txt", sep="")) 
+  }
+}
+matchcontig_getseq()
 
 # ---------------------------------------------------------
 # Match up the sequences for each gene from the 12 species
@@ -172,20 +168,6 @@ require(seqinr)
 hits_list2 <- read.csv("Sharedhits_list.csv", header=T)
 hits_list2 <- data.frame("Ensembl_id"=hits_list2$Ensembl_id)
 head(hits_list2)
-
-# load sequence files (of shared hits for each species)
-a_seqs <- read.table("rbhseqs/a_seqs.txt")
-b_seqs <- read.table("rbhseqs/b_seqs.txt")
-c_seqs <- read.table("rbhseqs/c_seqs.txt")
-d_seqs <- read.table("rbhseqs/d_seqs.txt")
-e_seqs <- read.table("rbhseqs/e_seqs.txt")
-f_seqs <- read.table("rbhseqs/f_seqs.txt")
-g_seqs <- read.table("rbhseqs/g_seqs.txt")
-h_seqs <- read.table("rbhseqs/h_seqs.txt")
-i_seqs <- read.table("rbhseqs/i_seqs.txt")
-j_seqs <- read.table("rbhseqs/j_seqs.txt")
-k_seqs <- read.table("rbhseqs/k_seqs.txt")
-l_seqs <- read.table("rbhseqs/l_seqs.txt")
 
 # TODO: can probably wrap this into the function
 # for each of the 12 seq files, grab all rows that match given ensembl id from hits_list2
@@ -214,13 +196,16 @@ for(i in 1:2){
   for(j in 1:length(seqfiles)){
     # define seq file
     seqfile <- read.table(seqfiles[j])
-    myseq[[j]] <- seqfile[seqfile$Ensembl_id == target, ]
+    targseq <- seqfile[seqfile$Ensembl_id == target, ]
+    myseq[[j]] <- 
+    
   }
   
   
   # this doesn't format correctly, might actually be better to leave as list and write as fasta
   genefile <- ldply(myseq)
-  write.fasta(sequences=genefile$Sequence, names=c(genefile$Contig_id, genefile$Ensembl_id), file.out=paste("genefastas/",target,".fasta", sep=""))
+  write.fasta(sequences=genefile$Sequence, names=c(genefile$Contig_id, genefile$Ensembl_id), 
+              file.out=paste("genefastas/",target,".fasta", sep=""))
 }
 
 
