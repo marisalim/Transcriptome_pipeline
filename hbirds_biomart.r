@@ -171,10 +171,45 @@ hits_list2 <- read.csv("Sharedhits_list.csv", header=T)
 hits_list2 <- data.frame("Ensembl_id"=hits_list2$Ensembl_id)
 head(hits_list2)
 
+# load sequence files (of shared hits for each species)
+a_seqs <- read.table("rbhseqs/a_seqs.txt")
+b_seqs <- read.table("rbhseqs/b_seqs.txt")
+c_seqs <- read.table("rbhseqs/c_seqs.txt")
+d_seqs <- read.table("rbhseqs/d_seqs.txt")
+e_seqs <- read.table("rbhseqs/e_seqs.txt")
+f_seqs <- read.table("rbhseqs/f_seqs.txt")
+g_seqs <- read.table("rbhseqs/g_seqs.txt")
+h_seqs <- read.table("rbhseqs/h_seqs.txt")
+i_seqs <- read.table("rbhseqs/i_seqs.txt")
+j_seqs <- read.table("rbhseqs/j_seqs.txt")
+k_seqs <- read.table("rbhseqs/k_seqs.txt")
+l_seqs <- read.table("rbhseqs/l_seqs.txt")
 
 # TODO: can probably wrap this into the function
 # for each of the 12 seq files, grab all rows that match given ensembl id from hits_list2
-  # 
+seqfolder = "rbhseqs/"
+seqfiles <- list.files(paste(seqfolder,sep="/"),pattern=".txt",full.name=T,recursive=T)
+
+for(i in 1:nrow(hits_list2)){
+  # define ensembl id to find
+  target <- hits_list2[i,]
+  # find target in seq files
+  for(j in 1:length(seqfiles)){
+    # define seq file
+    seqfile <- read.table(seqfiles[j])
+    myseq <- seqfile[seqfile$Ensembl_id == target, ]
+  }
+  
+  
+}
+
+# could either search for each target or rely on fact that seqs files are ordered from 1:1072 (but probably best not to rely on this...)
+
+
+
+
+
+
 # want to save this as fasta - need to format as fasta. 
   # Use write.fasta(sequences=seqs$sequences, names=seqs$Contig_id)...something like that
 
