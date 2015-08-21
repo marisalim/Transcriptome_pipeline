@@ -1,4 +1,4 @@
-#Marisa Lim (c)2015
+# Marisa Lim (c)2015
 MLwd = "C:/Users/mcwlim/Dropbox/Marisacompfiles/Transcriptome files"
 setwd(MLwd)
 # -------------------------------------
@@ -28,7 +28,7 @@ hitsvec <- as.vector(hits)
 length(hitsvec) 
 
 # ---------------------------------------------------------
-#Use biomaRt to find gene names and GO info for these hits
+# Use biomaRt to find gene names and GO info for these hits
 # ---------------------------------------------------------
 library(biomaRt)
 #biocLite("GO.db")
@@ -166,13 +166,17 @@ matchcontig_getseq(l_rbh, l_fasta, "l")
 # Match up the sequences for each gene from the 12 species
 # ---------------------------------------------------------
 
+# load shared genes list
+hits_list2 <- read.csv("Sharedhits_list.csv", header=T)
+hits_list2 <- data.frame("Ensembl_id"=hits_list2$Ensembl_id)
+head(hits_list2)
 
 
-
-
-
-
-
+# TODO: can probably wrap this into the function
+# for each of the 12 seq files, grab all rows that match given ensembl id from hits_list2
+  # 
+# want to save this as fasta - need to format as fasta. 
+  # Use write.fasta(sequences=seqs$sequences, names=seqs$Contig_id)...something like that
 
 
 
