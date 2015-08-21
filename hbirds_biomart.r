@@ -165,6 +165,8 @@ matchcontig_getseq(l_rbh, l_fasta, "l")
 # ---------------------------------------------------------
 # Match up the sequences for each gene from the 12 species
 # ---------------------------------------------------------
+require(plyr)
+require(seqinr)
 
 # load shared genes list
 hits_list2 <- read.csv("Sharedhits_list.csv", header=T)
@@ -189,7 +191,7 @@ l_seqs <- read.table("rbhseqs/l_seqs.txt")
 # for each of the 12 seq files, grab all rows that match given ensembl id from hits_list2
 seqfolder = "rbhseqs/"
 seqfiles <- list.files(paste(seqfolder,sep="/"),pattern=".txt",full.name=T,recursive=T)
-
+myseq <- list()
 for(i in 1:nrow(hits_list2)){
   # define ensembl id to find
   target <- hits_list2[i,]
@@ -197,17 +199,29 @@ for(i in 1:nrow(hits_list2)){
   for(j in 1:length(seqfiles)){
     # define seq file
     seqfile <- read.table(seqfiles[j])
-    myseq <- seqfile[seqfile$Ensembl_id == target, ]
+    myseq[[j]] <- seqfile[seqfile$Ensembl_id == target, ]
   }
-  
   
 }
 
-# could either search for each target or rely on fact that seqs files are ordered from 1:1072 (but probably best not to rely on this...)
 
 
-
-
+for(i in 1:2){
+  # define ensembl id to find
+  target <- hits_list2[i,]
+  # find target in seq files, store in myseq list
+  myseq <- list()
+  for(j in 1:length(seqfiles)){
+    # define seq file
+    seqfile <- read.table(seqfiles[j])
+    myseq[[j]] <- seqfile[seqfile$Ensembl_id == target, ]
+  }
+  
+  
+  # this doesn't format correctly, might actually be better to leave as list and write as fasta
+  genefile <- ldply(myseq)
+  write.fasta(sequences=genefile$Sequence, names=c(genefile$Contig_id, genefile$Ensembl_id), file.out=paste("genefastas/",target,".fasta", sep=""))
+}
 
 
 # want to save this as fasta - need to format as fasta. 
