@@ -131,16 +131,36 @@ matchcontig(l_rbh, "l")
 # Match contig id and get sequence
 # --------------------------------
 library(seqinr)
-a_fasta <- read.fasta("trinity_assembly/Trinity_A.fasta", seqtype="DNA", as.string = T)
+a_fasta <- read.fasta("trinity_assembly/Trinity_A.fasta", seqtype="DNA", as.string=T, 
+                      forceDNAtolower=F)
 a_fasta[1]
-a_seqs <- list()
-for(i in 1:length(a_hits2)){
-  if(a_hits2$contig_id[i] == a_fasta[i]){
-    a_seqs[[i]] <- a_fasta[i]
-  } else{
-    i <- i + 1
-  }
-}
+blah <- ldply(.data=a_fasta[1:10])
+colnames(blah) <- c("Contig_id", "Sequence")
+blah
+blah2 <- join(a_hits3, blah, by="Contig_id")
+blah2  
+
+# TODO:
+# filter fasta file to keep just the shared hits then use getSequences from this filtered list to get the sequences
+  # FIX: not sure how to filter the fasta, also getSequences() doesn't keep the contig name
+# OR
+# make fasta list to df, match df to contig id df and keep the seqs
+  # FIX: not keeping the seq, turns into NAs
+
+
+# write.fasta() new fasta file
+
+# match up contigs across species
+# send to muscle
+
+
+
+
+
+
+
+
+
 
 
 
