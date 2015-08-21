@@ -1,6 +1,11 @@
 # Marisa Lim (c)2015
 MLwd = "C:/Users/mcwlim/Dropbox/Marisacompfiles/Transcriptome files"
 setwd(MLwd)
+
+# Load libraries
+require(plyr)
+library(seqinr)
+
 # -------------------------------------
 # find RBHs shared between all species
 # -------------------------------------
@@ -86,14 +91,10 @@ hits_list <- data.frame(Ensembl_id = hits_go2[,1])
 write.csv(hits_list, "Sharedhits_list.csv")
 
 # -------------------------------------------------------------------------
-# Match ensembl id of shared hits to contig ID (need this to find sequence)
-# Get sequences from matched contig ids
+# Match ensembl id of shared hits to contig ID (need this to find sequence
 # -------------------------------------------------------------------------
-require(plyr)
-library(seqinr)
-
-# Function to match shared hits list to contig ids, and then use contig ids to pull out the sequences [note: the rbhhits and rhbseqs files need to be made first]
-matchcontig_getseq <- function(){
+# Function to match shared hits list to contig ids [note: the rbhhits folder has to be made first]
+matchcontig <- function(){
   # load shared genes list
   hits_list2 <- read.csv("Sharedhits_list.csv", header=T)
   hits_list2 <- data.frame("Ensembl_id"=hits_list2$Ensembl_id)
@@ -102,9 +103,7 @@ matchcontig_getseq <- function(){
   # Create infile lists
   rbhfolder = "RBH/"
   rbhfiles <- list.files(paste(rbhfolder,sep="/"),pattern=".out",full.name=T,recursive=T)
-  fastafolder = "trinity_assembly/"
-  fastafiles <- list.files(paste(fastafolder,sep="/"),pattern=".fasta",full.name=T,recursive=T)
-
+  
   # Create sample id vector
   sampleids <- c("a_Phart", "b_Cmuls", "c_Pmala", "d_Acast", "e_Ccoru", "f_Ccoel", "g_Cviol", "h_Aamaz", "i_Mphoe", "j_Aviri", "k_Amela", "l_Pgiga")
   
@@ -132,10 +131,24 @@ matchcontig_getseq <- function(){
     hits3 <- data.frame("Ensembl_id"=hits2$Ensembl_id, "Contig_id_long"=hits2$contig_id, "Contig_id"=contigname, "Sample_id"=hits2$Sample_id)
     write.table(hits3, paste("rbhhits/",samp,"_hits3.txt", sep=""))
   }
-  
-  # Need to load hits3 files for next loop
+}
+matchcontig()
+
+# --------------------------------------
+# Get sequences from matched contig ids
+# --------------------------------------
+# Function that uses contig ids to pull out the sequences [note: the rhbseqs folder has to be made first]
+getmyseqs <- function(){
+  # load hits files for each species
   hits3folder <- "rbhhits/"
   hits3files <- list.files(paste(hits3folder, sep="/"), pattern=".txt", full.name=T, recursive=T)
+  
+  # Create infile lists
+  fastafolder = "trinity_assembly/"
+  fastafiles <- list.files(paste(fastafolder,sep="/"),pattern=".fasta",full.name=T,recursive=T)
+  
+  # Create sample id vector
+  sampleids <- c("a_Phart", "b_Cmuls", "c_Pmala", "d_Acast", "e_Ccoru", "f_Ccoel", "g_Cviol", "h_Aamaz", "i_Mphoe", "j_Aviri", "k_Amela", "l_Pgiga")
   
   # Match contig ID to get sequences from fasta files
   for(j in 1:length(fastafiles)){
@@ -156,61 +169,77 @@ matchcontig_getseq <- function(){
     write.table(seqs, paste("rbhseqs/",samp,"_seqs.txt", sep="")) 
   }
 }
-matchcontig_getseq()
+getmyseqs()
 
 # ---------------------------------------------------------
 # Match up the sequences for each gene from the 12 species
 # ---------------------------------------------------------
-require(plyr)
-require(seqinr)
 
-# load shared genes list
-hits_list2 <- read.csv("Sharedhits_list.csv", header=T)
-hits_list2 <- data.frame("Ensembl_id"=hits_list2$Ensembl_id)
-head(hits_list2)
+# modified write.fasta() function, from here: http://gtamazian.blogspot.com/2013/08/bug-in-writefasta-function-of-seqinr.html
+# fixes code so that each sequence prints on new line rather than as one line
+write_fasta <- function (sequences, names, file.out, open = "w", nbchar = 60) 
+{
+  outfile <- file(description = file.out, open = open)
+  write.oneseq <- function(sequence, name, nbchar) {
+    writeLines(paste(">", name, sep = ""), outfile)
+    sequence <- unlist(strsplit(sequence, split=""))
+    l <- length(sequence)
+    q <- floor(l/nbchar)
+    r <- l - nbchar * q
+    if (q > 0) {
+      sapply(seq_len(q), function(x) writeLines(c2s(sequence[(nbchar * 
+                                                                (x - 1) + 1):(nbchar * x)]), outfile))
+    }
+    if (r > 0) {
+      writeLines(c2s(sequence[(nbchar * q + 1):l]), outfile)
+    }
+  }
+  if (!is.list(sequences)) {
+    write.oneseq(sequence = sequences, name = names, nbchar = nbchar)
+  }
+  else {
+    n.seq <- length(sequences)
+    sapply(seq_len(n.seq), function(x) write.oneseq(sequence = as.character(sequences[[x]]), 
+                                                    name = names[x], nbchar = nbchar))
+  }
+  close(outfile)
+}
 
-# TODO: can probably wrap this into the function
 # for each of the 12 seq files, grab all rows that match given ensembl id from hits_list2
-seqfolder = "rbhseqs/"
-seqfiles <- list.files(paste(seqfolder,sep="/"),pattern=".txt",full.name=T,recursive=T)
-myseq <- list()
-for(i in 1:nrow(hits_list2)){
-  # define ensembl id to find
-  target <- hits_list2[i,]
-  # find target in seq files
-  for(j in 1:length(seqfiles)){
-    # define seq file
-    seqfile <- read.table(seqfiles[j])
-    myseq[[j]] <- seqfile[seqfile$Ensembl_id == target, ]
-  }
+makegenefiles <- function(){
+  # load shared genes list
+  hits_list2 <- read.csv("Sharedhits_list.csv", header=T)
+  hits_list2 <- data.frame("Ensembl_id"=hits_list2$Ensembl_id)
+  #head(hits_list2)
   
-}
-
-
-
-for(i in 1:2){
-  # define ensembl id to find
-  target <- hits_list2[i,]
-  # find target in seq files, store in myseq list
-  myseq <- list()
-  for(j in 1:length(seqfiles)){
-    # define seq file
-    seqfile <- read.table(seqfiles[j])
-    targseq <- seqfile[seqfile$Ensembl_id == target, ]
-    myseq[[j]] <- 
+  # load seqs files for each sample
+  seqfolder = "rbhseqs/"
+  seqfiles <- list.files(paste(seqfolder,sep="/"),pattern=".txt",full.name=T,recursive=T)
+  
+  for(i in 1:nrow(hits_list2)){
+    # define ensembl id to find
+    target <- hits_list2[i,]
+    myseq <- list()
     
+    # find target in seq files
+    for(j in 1:length(seqfiles)){
+      # define seq file
+      seqfile <- read.table(seqfiles[j])
+      myseq[[j]] <- seqfile[seqfile$Ensembl_id == target, ]
+    }
+    genefile <- ldply(myseq)
+    genelist <- as.list(genefile$Sequence)
+    
+    write_fasta(sequences=genelist, 
+                names=paste(genefile$Sample_id,".",genefile$Ensembl_id,".",genefile$Contig_id,sep=""), 
+                nbchar=80, file.out=paste("genefastas/",target,".fasta", sep=""))
   }
-  
-  
-  # this doesn't format correctly, might actually be better to leave as list and write as fasta
-  genefile <- ldply(myseq)
-  write.fasta(sequences=genefile$Sequence, names=c(genefile$Contig_id, genefile$Ensembl_id), 
-              file.out=paste("genefastas/",target,".fasta", sep=""))
 }
+makegenefiles()
 
 
-# want to save this as fasta - need to format as fasta. 
-  # Use write.fasta(sequences=seqs$sequences, names=seqs$Contig_id)...something like that
+
+
 
 
 
