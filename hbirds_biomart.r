@@ -185,35 +185,6 @@ getmyseqs()
 # Match up the sequences for each gene from the 12 species
 # ---------------------------------------------------------
 
-# modified write.fasta() function, from here: http://gtamazian.blogspot.com/2013/08/bug-in-writefasta-function-of-seqinr.html
-# fixes code so that each sequence prints on new line rather than as one line
-write_fasta <- function (sequences, names, file.out, open = "w", nbchar = 60){
-  outfile <- file(description = file.out, open = open)
-  write.oneseq <- function(sequence, name, nbchar) {
-    writeLines(paste(">", name, sep = ""), outfile)
-    sequence <- unlist(strsplit(sequence, split=""))
-    l <- length(sequence)
-    q <- floor(l/nbchar)
-    r <- l - nbchar * q
-    if (q > 0) {
-      sapply(seq_len(q), function(x) writeLines(c2s(sequence[(nbchar * 
-                                                                (x - 1) + 1):(nbchar * x)]), outfile))
-    }
-    if (r > 0) {
-      writeLines(c2s(sequence[(nbchar * q + 1):l]), outfile)
-    }
-  }
-  if (!is.list(sequences)) {
-    write.oneseq(sequence = sequences, name = names, nbchar = nbchar)
-  }
-  else {
-    n.seq <- length(sequences)
-    sapply(seq_len(n.seq), function(x) write.oneseq(sequence = as.character(sequences[[x]]), 
-                                                    name = names[x], nbchar = nbchar))
-  }
-  close(outfile)
-}
-
 # for each of the 12 seq files, grab all rows that match given ensembl id from hits_list2
 makegenefiles <- function(){
   # make output folder
@@ -244,7 +215,7 @@ makegenefiles <- function(){
     genelist <- as.list(genefile$Sequence)
     
     # save the sequences for each gene
-    write_fasta(sequences=genelist, 
+    write.fasta(sequences=genelist, 
                 names=paste(genefile$Sample_id,".",genefile$Ensembl_id,".",genefile$Contig_id,sep=""), 
                 nbchar=80, file.out=paste("genefastas/",target,".fasta", sep=""))
     # save the blast info for each gene, rearrange columns to be in same order as original blast output
