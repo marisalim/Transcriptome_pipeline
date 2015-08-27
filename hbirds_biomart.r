@@ -249,13 +249,10 @@ makegenefiles <- function(){
                 nbchar=80, file.out=paste("genefastas/",target,".fasta", sep=""))
     # save the blast info for each gene, rearrange columns to be in same order as original blast output
     genefile2 <- genefile[,c(3,1,4:10)]
-    write.table(genefile2, file.out=paste("genefastas/",target,".blastout", sep=""))
+    write.table(genefile2, file=paste("genefastas/",target,"_blastout.txt", sep=""))
   }
 }
 makegenefiles()
-
-##### START HERE = you just need to run the makegenefiles()
-
 
 
 
