@@ -15,8 +15,30 @@ head(testmod)
 colnames(nullmod) <- c("Gene", "lnL")
 colnames(testmod) <- c("Gene", "lnL")
 
-LRTdat <- data.frame("Gene_nullmod"=nullmod$Gene, "lnL_nullmod"=nullmod$lnL, 
+# get gene name
+replacebreak <- gsub(pattern="/", replacement=" ", x=nullmod$Gene)
+splitbreak <- strsplit(replacebreak, split=" ")
+genename1 <- sapply(splitbreak, function(x){
+  paste(x[[3]])
+})
+genename1
+replacebreak2 <- gsub(pattern="_", replacement=" ", x=genename1)
+splitbreak2 <- strsplit(replacebreak2, split=" ")
+genename <- sapply(splitbreak2, function(x){
+  paste(x[[1]])
+})
+genename
+
+LRTdat <- data.frame("Gene"=genename, "Gene_nullmod"=nullmod$Gene, "lnL_nullmod"=nullmod$lnL, 
                      "Gene_testmod"=testmod$Gene, "lnL_testmod"=testmod$lnL)
 LRTdat$LRT <- 2*(LRTdat$lnL_testmod - LRTdat$lnL_nullmod)
+head(LRTdat)
+
+# Which columns have LRT > 1 
+# To do: set the correct threshold for level of significance
+LRTdat[LRTdat$LRT > 1,]
+
+
+
 
 write.csv(LRTdat, "Loglikelihood_codemlresults.csv")
