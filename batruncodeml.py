@@ -3,8 +3,6 @@
 #PAML analyses - test positive selection model and null model
 
 ## To do: add functions to run at different starting values...
-## To do: add function/step to get the lnL line, separate by spaces, grab the lnL value, save in tab-delimited format so that it's easy
-## 			to read into excel ... or can i also make a function that does the calculation and outputs the results??
 
 import os
 from Bio.Phylo.PAML import codeml
