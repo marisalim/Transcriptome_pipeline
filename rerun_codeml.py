@@ -110,7 +110,7 @@ for aname in reruns:
 		while notconverged:
 			if counter > 4:
 				print 'Ok, all start values have been tried.'
-				print 'If the file is not in thereruns dir, then the file has still NOT converged. Sigh...'
+				print 'If you see this message, then the file has still NOT converged. Sigh...'
 				break
 				
 			ModelA_poscodeml(file_rerun, kappa_starts[counter], omega_starts[counter])
