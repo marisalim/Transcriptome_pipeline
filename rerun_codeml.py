@@ -62,7 +62,7 @@ def ModelA_poscodeml(element, kappastart, omegastart):
 	cml.set_options(cleandata = 1)
 	cml.run(verbose = True)
 	
-reruns = open('rerun_null.txt', 'r')
+reruns = open('reruntest.txt', 'r')
 kappa_starts = [0, 0.5, 1, 3.5, 15] # range of start values for kappa
 #kappa_starts = [0,0.5] # use to test code
 omega_starts = [0, 0.5, 1, 3.5, 15] # range of start values for omega
@@ -81,7 +81,7 @@ for aname in reruns:
 		while notconverged:
 			if counter > 4:
 				print 'Ok, all start values have been tried.'
-				print 'If the file is not in thereruns dir, then the file has still NOT converged. Sigh...'
+				print 'If you see this message, then the file has still NOT converged. Sigh...'
 				break
 				
 			ModelA_nullcodeml(file_rerun, kappa_starts[counter])
