@@ -13,6 +13,10 @@ library(biomaRt)
 #biocLite("GO.db")
 library("GO.db")
 
+library(KEGGREST)
+# source("https://bioconductor.org/biocLite.R")
+# biocLite("KEGGREST")
+
 # Read in lnL values for each model
 nullmod <- read.table("lnL_null.txt")
 testmod <- read.table("lnL_pos.txt")
@@ -80,6 +84,10 @@ dim(p0.001_go)
 p0.001_go2 <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol', 'go_id', 'description'), filters='ensembl_peptide_id', values=p0.001$Gene, mart=ensembl)
 p0.001goterms <- as.data.frame(Term(p0.001_go2$go_id))
 head(p0.001goterms)
+
+# search KEGG
+#browseVignettes("KEGGREST")
+
 
 
 
