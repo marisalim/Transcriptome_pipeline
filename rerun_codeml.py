@@ -63,9 +63,9 @@ def ModelA_poscodeml(element, kappastart, omegastart):
 	cml.run(verbose = True)
 	
 reruns = open('rerun_null.txt', 'r')
-kappa_starts = [0, 0.5, 1, 2, 4, 8] # range of start values for kappa
+kappa_starts = [0, 0.5, 1, 3.5, 15] # range of start values for kappa
 #kappa_starts = [0,0.5] # use to test code
-omega_starts = [0, 0.5, 1, 2, 4, 8] # range of start values for omega
+omega_starts = [0, 0.5, 1, 3.5, 15] # range of start values for omega
 #omega_starts = [0,0.5] # use to test code
 
 for aname in reruns:
@@ -79,7 +79,7 @@ for aname in reruns:
 		counter = 0 # to move consecutively through the values
 		
 		while notconverged:
-			if counter > 5:
+			if counter > 4:
 				print 'Ok, all start values have been tried.'
 				print 'If the file is not in thereruns dir, then the file has still NOT converged. Sigh...'
 				break
@@ -87,13 +87,13 @@ for aname in reruns:
 			ModelA_nullcodeml(file_rerun, kappa_starts[counter])
 	
 			if 'check convergence..' in open(file_rerun + '_modAnull.out').read():
-				print 'Nope, try again...'
+				print 'Nope, try again...', file_rerun
 				print '---------------------------------------'
 				
 			else: 
 				os.system('mv ' + file_rerun + '_modAnull.out ./thereruns')
-				print 'Success!!! Output moved to thereruns directory'
-				print '-----------------------------------------------'
+				print 'Success!!!', file_rerun, ' moved to thereruns directory'
+				print '----------------------------------------------------------------'
 				break
 				
 			counter += 1
@@ -108,7 +108,7 @@ for aname in reruns:
 		counter = 0 # to move consecutively through the values
 		
 		while notconverged:
-			if counter > 1:
+			if counter > 4:
 				print 'Ok, all start values have been tried.'
 				print 'If the file is not in thereruns dir, then the file has still NOT converged. Sigh...'
 				break
@@ -116,13 +116,13 @@ for aname in reruns:
 			ModelA_poscodeml(file_rerun, kappa_starts[counter], omega_starts[counter])
 	
 			if 'check convergence..' in open(file_rerun + '_modApos.out').read():
-				print 'Nope, try again...'
+				print 'Nope, try again...', file_rerun
 				print '---------------------------------------'
 				
 			else: 
 				os.system('mv ' + file_rerun + '_modApos.out ./thereruns')
-				print 'Success!!! Output moved to thereruns directory'
-				print '-----------------------------------------------'
+				print 'Success!!!', file_rerun, ' moved to thereruns directory'
+				print '----------------------------------------------------------------'
 				break
 				
 			counter += 1
