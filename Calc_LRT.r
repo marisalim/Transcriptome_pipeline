@@ -50,6 +50,13 @@ LRTdat <- data.frame("Gene"=genename, "Gene_nullmod"=nullmod$Gene, "lnL_nullmod"
 LRTdat$LRT <- 2*(LRTdat$lnL_testmod - LRTdat$lnL_nullmod)
 head(LRTdat)
 
+# plot LRT and significance cutoffs
+rownums <- c(1:163)
+plot(rownums, LRTdat$LRT, pch=20, cex=1.5, xlab="Gene ID", ylab="LRT")
+abline(h=3.84, lwd=2, col="tomato")
+abline(h=6.64, lty=2, lwd=2, col="deepskyblue2")
+abline(h=10.83, lty=4, lwd=2, col="seagreen3")
+
 # Which columns have significant LRT? (df = 1)
 dim(LRTdat[LRTdat$LRT > 3.84,]) # p=0.05
 dim(LRTdat[LRTdat$LRT > 6.64,]) # p=0.01
@@ -87,10 +94,11 @@ head(p0.001goterms)
 
 # search KEGG
 #browseVignettes("KEGGREST")
-
-
-
-
+# listDatabases()
+# org <- keggList("organism")
+# head(org)
+# queryables <- c(listDatabases(), org[,1], org[,2])
+# keggList("hsa")
 
 
 write.csv(LRTdat, "Loglikelihood_codemlresults.csv")
