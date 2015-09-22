@@ -44,10 +44,12 @@ head(attributes)
 
 # test code for biomaRt
 # =====================
-grep("description",attributes$name, ignore.case=T, value=T)
+grep("go",attributes$description, ignore.case=T, value=T)
 
 test <- 'ENSTGUP00000000081'
-getBM(attributes=c('ensembl_peptide_id', 'go_id', 'hgnc_symbol'), filters='ensembl_peptide_id', values=test, mart=ensembl)
+getBM(attributes=c('ensembl_peptide_id', 'go_id','goslim_goa_description','name_1006','definition_1006', 
+                   'go_linkage_type', 'namespace_1003', 'goslim_goa_accession',
+                   'hgnc_symbol'), filters='ensembl_peptide_id', values=test, mart=ensembl)
 
 go_search <- getBM(attributes="go_id", filters="ensembl_peptide_id", values = test, mart = ensembl)
 Term(go_search$go_id)
@@ -80,6 +82,13 @@ class(hits_go)
 goterms <- as.data.frame(Term(hits_go$go_id))
 head(goterms)
 class(goterms)
+
+gotermstogether <- data.frame("ensembl_peptide_id"=hits_go$ensembl_peptide_id, "hgnc_symbol"=hits_go$hgnc_symbol, "go_id"=hits_go$go_id,
+                              "go_description"=goterms$`Term(hits_go$go_id)`)
+# gotermstogether[gotermstogether$hgnc_symbol == "TPP1", ]
+dat_tab <- table(gotermstogether[, 4]) 
+write.table(dat_tab, "Fulldatasetgenes_gotermstable.txt")
+barplot(dat_tab)
 
 hits_go2 <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol', 'description'), filters='ensembl_peptide_id', values=hitsvec, mart=ensembl)
 head(hits_go2)
