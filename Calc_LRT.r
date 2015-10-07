@@ -62,13 +62,13 @@ dim(LRTdat[LRTdat$LRT >= 3.84,]) # p=0.05
 dim(LRTdat[LRTdat$LRT >= 6.64,]) # p=0.01
 dim(LRTdat[LRTdat$LRT >= 10.83,]) # p=0.001
 
-# new dataframes for each level of significance
-p0.05 <- LRTdat[LRTdat$LRT >= 3.84,]
-p0.01 <- LRTdat[LRTdat$LRT >= 6.64,]
-p0.001 <- LRTdat[LRTdat$LRT >= 10.83,]
-
-# read in list of genes not significant in codeml (at any level)
-nonsig_genes <- LRTdat[LRTdat$LRT < 3.84,]
+# # new dataframes for each level of significance
+# p0.05 <- LRTdat[LRTdat$LRT >= 3.84,]
+# p0.01 <- LRTdat[LRTdat$LRT >= 6.64,]
+# p0.001 <- LRTdat[LRTdat$LRT >= 10.83,]
+# 
+# # read in list of genes not significant in codeml (at any level)
+# nonsig_genes <- LRTdat[LRTdat$LRT < 3.84,]
 
 # search GO terms/info
 ensembl = useMart("ensembl", dataset="tguttata_gene_ensembl")
@@ -120,6 +120,7 @@ head(CCdat)
 MF_NMDS = metaMDS(MFdat[12:ncol(MFdat)], k=2)
 BP_NMDS = metaMDS(BPdat[12:ncol(BPdat)], k=2)
 CC_NMDS = metaMDS(CCdat[12:ncol(CCdat)], k=2)
+# not converging - doesn't matter if i add trymax=100, still doesn't converge 
 # test different distance metrics
 
 stressplot(MF_NMDS)
@@ -130,55 +131,55 @@ stressplot(CC_NMDS)
 jpeg("all_NMDS.jpg", height=10, width=10, units="in", res=500)
 par(mfrow=c(3,3))
 ordiplot(MF_NMDS,type="n", main="MF, p=0.05")
-ordihull(MF_NMDS, groups=MFdat$signif_grp_05, draw="polygon", label=T, show.groups="nonsig", col="green")
-ordihull(MF_NMDS, groups=MFdat$signif_grp_05, draw="polygon", label=T, show.groups="signif", col="blue", lty=2)
+ordihull(MF_NMDS, groups=MFdat$signif_grp_05, draw="polygon", label=T, show.groups="nonsig", col="darkgrey")
+ordihull(MF_NMDS, groups=MFdat$signif_grp_05, draw="polygon", label=T, show.groups="signif", col="red", lty=2)
 
 ordiplot(MF_NMDS,type="n", main="MF, p=0.01")
-ordihull(MF_NMDS, groups=MFdat$signif_grp_01, draw="polygon", label=T, show.groups="nonsig", col="green")
-ordihull(MF_NMDS, groups=MFdat$signif_grp_01, draw="polygon", label=T, show.groups="signif", col="blue", lty=2)
+ordihull(MF_NMDS, groups=MFdat$signif_grp_01, draw="polygon", label=T, show.groups="nonsig", col="darkgrey")
+ordihull(MF_NMDS, groups=MFdat$signif_grp_01, draw="polygon", label=T, show.groups="signif", col="red", lty=2)
 
 ordiplot(MF_NMDS,type="n", main="MF, p=0.001")
-ordihull(MF_NMDS, groups=MFdat$signif_grp_001, draw="polygon", label=T, show.groups="nonsig", col="green")
-ordihull(MF_NMDS, groups=MFdat$signif_grp_001, draw="polygon", label=T, show.groups="signif", col="blue", lty=2)
+ordihull(MF_NMDS, groups=MFdat$signif_grp_001, draw="polygon", label=T, show.groups="nonsig", col="darkgrey")
+ordihull(MF_NMDS, groups=MFdat$signif_grp_001, draw="polygon", label=T, show.groups="signif", col="red", lty=2)
 
 ordiplot(BP_NMDS,type="n", main="BP, p=0.05")
-ordihull(BP_NMDS, groups=BPdat$signif_grp_05, draw="polygon", label=T, show.groups="nonsig", col="green")
-ordihull(BP_NMDS, groups=BPdat$signif_grp_05, draw="polygon", label=T, show.groups="signif", col="blue", lty=2)
+ordihull(BP_NMDS, groups=BPdat$signif_grp_05, draw="polygon", label=T, show.groups="nonsig", col="darkgrey")
+ordihull(BP_NMDS, groups=BPdat$signif_grp_05, draw="polygon", label=T, show.groups="signif", col="red", lty=2)
 
 ordiplot(BP_NMDS,type="n", main="BP, p=0.01")
-ordihull(BP_NMDS, groups=BPdat$signif_grp_01, draw="polygon", label=T, show.groups="nonsig", col="green")
-ordihull(BP_NMDS, groups=BPdat$signif_grp_01, draw="polygon", label=T, show.groups="signif", col="blue", lty=2)
+ordihull(BP_NMDS, groups=BPdat$signif_grp_01, draw="polygon", label=T, show.groups="nonsig", col="darkgrey")
+ordihull(BP_NMDS, groups=BPdat$signif_grp_01, draw="polygon", label=T, show.groups="signif", col="red", lty=2)
 
 ordiplot(BP_NMDS,type="n", main="BP, p=0.001")
-ordihull(BP_NMDS, groups=BPdat$signif_grp_001, draw="polygon", label=T, show.groups="nonsig", col="green")
-ordihull(BP_NMDS, groups=BPdat$signif_grp_001, draw="polygon", label=T, show.groups="signif", col="blue", lty=2)
+ordihull(BP_NMDS, groups=BPdat$signif_grp_001, draw="polygon", label=T, show.groups="nonsig", col="darkgrey")
+ordihull(BP_NMDS, groups=BPdat$signif_grp_001, draw="polygon", label=T, show.groups="signif", col="red", lty=2)
 
 ordiplot(CC_NMDS,type="n", main="CC, p=0.05")
-ordihull(CC_NMDS, groups=CCdat$signif_grp_05, draw="polygon", label=T, show.groups="nonsig", col="green")
-ordihull(CC_NMDS, groups=CCdat$signif_grp_05, draw="polygon", label=T, show.groups="signif", col="blue", lty=2)
+ordihull(CC_NMDS, groups=CCdat$signif_grp_05, draw="polygon", label=T, show.groups="nonsig", col="darkgrey")
+ordihull(CC_NMDS, groups=CCdat$signif_grp_05, draw="polygon", label=T, show.groups="signif", col="red", lty=2)
 
 ordiplot(CC_NMDS,type="n", main="CC, p=0.01")
-ordihull(CC_NMDS, groups=CCdat$signif_grp_01, draw="polygon", label=T, show.groups="nonsig", col="green")
-ordihull(CC_NMDS, groups=CCdat$signif_grp_01, draw="polygon", label=T, show.groups="signif", col="blue", lty=2)
+ordihull(CC_NMDS, groups=CCdat$signif_grp_01, draw="polygon", label=T, show.groups="nonsig", col="darkgrey")
+ordihull(CC_NMDS, groups=CCdat$signif_grp_01, draw="polygon", label=T, show.groups="signif", col="red", lty=2)
 
 ordiplot(CC_NMDS,type="n", main="CC, p=0.001")
-ordihull(CC_NMDS, groups=CCdat$signif_grp_001, draw="polygon", label=T, show.groups="nonsig", col="green")
-ordihull(CC_NMDS, groups=CCdat$signif_grp_001, draw="polygon", label=T, show.groups="signif", col="blue", lty=2)
+ordihull(CC_NMDS, groups=CCdat$signif_grp_001, draw="polygon", label=T, show.groups="nonsig", col="darkgrey")
+ordihull(CC_NMDS, groups=CCdat$signif_grp_001, draw="polygon", label=T, show.groups="signif", col="red", lty=2)
 dev.off()
 
-jpeg("0.05_NMDS.jpg", height=10, width=15, units="in", res=500)
+jpeg("0.05_NMDS.jpg", height=4, width=6, units="in", res=500)
 par(mfrow=c(1,3))
-ordiplot(MF_NMDS,type="n", main="MF, p=0.05")
-ordihull(MF_NMDS, groups=MFdat$signif_grp_05, draw="polygon", label=T, show.groups="nonsig", col="green")
-ordihull(MF_NMDS, groups=MFdat$signif_grp_05, draw="polygon", label=T, show.groups="signif", col="blue", lty=2)
+ordiplot(MF_NMDS,type="n", main="Molecular function")
+ordihull(MF_NMDS, groups=MFdat$signif_grp_05, draw="polygon", label=F, show.groups="nonsig", col="darkgrey")
+ordihull(MF_NMDS, groups=MFdat$signif_grp_05, draw="polygon", label=F, show.groups="signif", col="red", lty=2)
 
-ordiplot(BP_NMDS,type="n", main="BP, p=0.05")
-ordihull(BP_NMDS, groups=BPdat$signif_grp_05, draw="polygon", label=T, show.groups="nonsig", col="green")
-ordihull(BP_NMDS, groups=BPdat$signif_grp_05, draw="polygon", label=T, show.groups="signif", col="blue", lty=2)
+ordiplot(BP_NMDS,type="n", main="Biological process")
+ordihull(BP_NMDS, groups=BPdat$signif_grp_05, draw="polygon", label=F, show.groups="nonsig", col="darkgrey")
+ordihull(BP_NMDS, groups=BPdat$signif_grp_05, draw="polygon", label=F, show.groups="signif", col="red", lty=2)
 
-ordiplot(CC_NMDS,type="n", main="CC, p=0.05")
-ordihull(CC_NMDS, groups=CCdat$signif_grp_05, draw="polygon", label=T, show.groups="nonsig", col="green")
-ordihull(CC_NMDS, groups=CCdat$signif_grp_05, draw="polygon", label=T, show.groups="signif", col="blue", lty=2)
+ordiplot(CC_NMDS,type="n", main="Cellular component")
+ordihull(CC_NMDS, groups=CCdat$signif_grp_05, draw="polygon", label=F, show.groups="nonsig", col="darkgrey")
+ordihull(CC_NMDS, groups=CCdat$signif_grp_05, draw="polygon", label=F, show.groups="signif", col="red", lty=2)
 dev.off()
 
 # individual plots for p=0.05
@@ -186,24 +187,27 @@ jpeg("0.05MF_NMDS.jpg", height=10, width=10, units="in", res=500)
 ordiplot(MF_NMDS,type="n", main="MF, p=0.05")
 orditorp(MF_NMDS,display="species",cex=1.5,col="tomato",air=0.01)
 orditorp(MF_NMDS,display="sites",cex=1,air=0.1)
-ordihull(MF_NMDS, groups=MFdat$signif_grp_05, draw="polygon", label=T, show.groups="nonsig", col="green")
-ordihull(MF_NMDS, groups=MFdat$signif_grp_05, draw="polygon", label=T, show.groups="signif", col="blue", lty=2)
+ordihull(MF_NMDS, groups=MFdat$signif_grp_05, draw="polygon", label=T, show.groups="nonsig", col="darkgrey")
+ordihull(MF_NMDS, groups=MFdat$signif_grp_05, draw="polygon", label=T, show.groups="signif", col="red", lty=2)
+#legend("topright", pch=c(16, 16), cex=c(1.5, 1.5), col=c("grey", "red"), c("Non-significant", "Significant"), bty="n")
 dev.off()
 
 jpeg("0.05BP_NMDS.jpg", height=10, width=10, units="in", res=500)
 ordiplot(BP_NMDS,type="n", main="BP, p=0.05")
 orditorp(BP_NMDS,display="species",cex=1.5,col="tomato",air=0.01)
 orditorp(BP_NMDS,display="sites",cex=1,air=0.1)
-ordihull(BP_NMDS, groups=BPdat$signif_grp_05, draw="polygon", label=T, show.groups="nonsig", col="green")
-ordihull(BP_NMDS, groups=BPdat$signif_grp_05, draw="polygon", label=T, show.groups="signif", col="blue", lty=2)
+ordihull(BP_NMDS, groups=BPdat$signif_grp_05, draw="polygon", label=T, show.groups="nonsig", col="darkgrey")
+ordihull(BP_NMDS, groups=BPdat$signif_grp_05, draw="polygon", label=T, show.groups="signif", col="red", lty=2)
+#legend("topright", pch=c(16, 16), cex=c(1.5, 1.5), col=c("grey", "red"), c("Non-significant", "Significant"), bty="n")
 dev.off()
 
 jpeg("0.05CC_NMDS.jpg", height=10, width=10, units="in", res=500)
 ordiplot(CC_NMDS,type="n", main="CC, p=0.05")
 orditorp(CC_NMDS,display="species",cex=1.5,col="tomato",air=0.01)
 orditorp(CC_NMDS,display="sites",cex=1,air=0.1)
-ordihull(CC_NMDS, groups=CCdat$signif_grp_05, draw="polygon", label=T, show.groups="nonsig", col="green")
-ordihull(CC_NMDS, groups=CCdat$signif_grp_05, draw="polygon", label=T, show.groups="signif", col="blue", lty=2)
+ordihull(CC_NMDS, groups=CCdat$signif_grp_05, draw="polygon", label=T, show.groups="nonsig", col="darkgrey")
+ordihull(CC_NMDS, groups=CCdat$signif_grp_05, draw="polygon", label=T, show.groups="signif", col="red", lty=2)
+#legend("topright", pch=c(16, 16), cex=c(1.5, 1.5), col=c("grey", "red"), c("Non-significant", "Significant"), bty="n")
 dev.off()
 
 
