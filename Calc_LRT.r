@@ -1,12 +1,8 @@
-# calculate LRT from codeml results
+# calculate LRT from codeml results, grab gene ontology categories, NMDS
 # null = Model A1 (NSsites = 2, model = 2, fix_omega = 1)
 # test = Model A (NSsites = 2, model = 2, fix_omega = 0)
 
 # Marisa Lim (c)2015
-
-# set working directory
-MLwd = "C:/Users/mcwlim/Dropbox/Marisacompfiles/Transcriptome files"
-setwd(MLwd)
 
 # load libraries
 library(biomaRt)
@@ -15,7 +11,11 @@ library(vegan)
 library(dplyr)
 library(tidyr)
 
-# Read in lnL values for each model
+# set working directory
+MLwd = "C:/Users/mcwlim/Dropbox/Marisacompfiles/Transcriptome files"
+setwd(MLwd)
+
+# ----------------- Read in lnL values for each model -----------------
 nullmod <- read.table("lnL_null.txt")
 testmod <- read.table("lnL_pos.txt")
 head(nullmod)
@@ -44,7 +44,8 @@ head(genename)
 # merge the information for both models
 LRTdat <- data.frame("Gene"=genename, "Gene_nullmod"=nullmod$Gene, "lnL_nullmod"=nullmod$lnL, 
                      "Gene_testmod"=testmod$Gene, "lnL_testmod"=testmod$lnL)
-# calculate LRT
+
+# ----------------- calculate LRT -----------------
 LRTdat$LRT <- 2*(LRTdat$lnL_testmod - LRTdat$lnL_nullmod)
 head(LRTdat)
 
@@ -62,15 +63,7 @@ dim(LRTdat[LRTdat$LRT >= 3.84,]) # p=0.05
 dim(LRTdat[LRTdat$LRT >= 6.64,]) # p=0.01
 dim(LRTdat[LRTdat$LRT >= 10.83,]) # p=0.001
 
-# # new dataframes for each level of significance
-# p0.05 <- LRTdat[LRTdat$LRT >= 3.84,]
-# p0.01 <- LRTdat[LRTdat$LRT >= 6.64,]
-# p0.001 <- LRTdat[LRTdat$LRT >= 10.83,]
-# 
-# # read in list of genes not significant in codeml (at any level)
-# nonsig_genes <- LRTdat[LRTdat$LRT < 3.84,]
-
-# search GO terms/info
+# ----------------- search GO terms/info -----------------
 ensembl = useMart("ensembl", dataset="tguttata_gene_ensembl")
 filters = listFilters(ensembl)
 attributes = listAttributes(ensembl)
@@ -116,7 +109,7 @@ CCdat <- spread(data=CCmerge, key=name_1006, value=value)
 CCdat[is.na(CCdat)] <- 0
 head(CCdat)
 
-# Non-metric multidimensional scaling
+# ----------------- Non-metric multidimensional scaling -----------------
 MF_NMDS = metaMDS(MFdat[12:ncol(MFdat)], k=2)
 BP_NMDS = metaMDS(BPdat[12:ncol(BPdat)], k=2)
 CC_NMDS = metaMDS(CCdat[12:ncol(CCdat)], k=2)
@@ -210,16 +203,21 @@ ordihull(CC_NMDS, groups=CCdat$signif_grp_05, draw="polygon", label=T, show.grou
 #legend("topright", pch=c(16, 16), cex=c(1.5, 1.5), col=c("grey", "red"), c("Non-significant", "Significant"), bty="n")
 dev.off()
 
+# ----------------- GO terms for each signif level -----------------
+# new dataframes for each level of significance
+p0.05 <- LRTdat[LRTdat$LRT >= 3.84,]
+p0.01 <- LRTdat[LRTdat$LRT >= 6.64,]
+p0.001 <- LRTdat[LRTdat$LRT >= 10.83,]
+# read in list of genes not significant in codeml (at any level)
+nonsig_genes <- LRTdat[LRTdat$LRT < 3.84,]
 
-
-# -------------------- GO terms for each signif level ---------------------------
-# p0.05_go <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol'), filters='ensembl_peptide_id', values=p0.05$Gene, mart=ensembl)
-# head(p0.05_go)
-# dim(p0.05_go)
-# p0.05_BP <- p0.05_go2[p0.05_go2$namespace_1003 == "biological_process",]
-# head(p0.05_BP)
-# dat_tab <- table(p0.05_BP$ensembl_peptide_id, p0.05_BP$name_1006) 
-# dat_tab[1:5, 1:5] 
+p0.05_go <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol'), filters='ensembl_peptide_id', values=p0.05$Gene, mart=ensembl)
+head(p0.05_go)
+dim(p0.05_go)
+p0.05_BP <- p0.05_go2[p0.05_go2$namespace_1003 == "biological_process",]
+head(p0.05_BP)
+dat_tab <- table(p0.05_BP$ensembl_peptide_id, p0.05_BP$name_1006) 
+dat_tab[1:5, 1:5] 
 #   #first column is an unidentified gene - that's why the colname is blank
 #   #out of 80, there are only 60 with known biological_process functions
 # write.csv(dat_tab, "dat_tab.csv")
