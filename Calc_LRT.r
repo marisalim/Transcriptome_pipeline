@@ -221,13 +221,6 @@ dat_tab[1:5, 1:5]
 #   #first column is an unidentified gene - that's why the colname is blank
 #   #out of 80, there are only 60 with known biological_process functions
 # write.csv(dat_tab, "dat_tab.csv")
-# 
-# nonsig_go <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol', 'name_1006', 'namespace_1003'), filters='ensembl_peptide_id', values=nonsig_genes$Gene, mart=ensembl)
-# head(nonsig_go)
-# dim(nonsig_go)
-# nonsig_BP <- nonsig_go[nonsig_go$namespace_1003 == "biological_process",]
-# nonsig_tab <- table(nonsig_BP$ensembl_peptide_id, nonsig_BP$name_1006)
-# nonsig_tab[1:5, 1:5]
 
 # p0.01_go <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol'), filters='ensembl_peptide_id', values=p0.01$Gene, mart=ensembl)
 # head(p0.01_go)
@@ -243,7 +236,12 @@ dat_tab[1:5, 1:5]
 # p0.001goterms <- data.frame("go_description"=Term(p0.001_go2$go_id))
 # head(p0.001goterms)
 
-
+# nonsig_go <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol', 'name_1006', 'namespace_1003'), filters='ensembl_peptide_id', values=nonsig_genes$Gene, mart=ensembl)
+# head(nonsig_go)
+# dim(nonsig_go)
+# nonsig_BP <- nonsig_go[nonsig_go$namespace_1003 == "biological_process",]
+# nonsig_tab <- table(nonsig_BP$ensembl_peptide_id, nonsig_BP$name_1006)
+# nonsig_tab[1:5, 1:5]
 
 
 
