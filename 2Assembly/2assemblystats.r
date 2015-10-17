@@ -1,7 +1,11 @@
+# Code to look at the contig length distributions for each Trinity assembly
+# Marisa Lim (c)2015
+
+# set working directory
 wd = "C:/Users/mcwlim/Desktop/StonyBrook/GrahamLab/Dissertation idea materials/THESIS PROJECTS/Hummingbird_Genomics/Transcriptome pipeline files/"
 setwd(wd)
 
-# THIS IS THE CONTIG LENGTH
+# Load contig length input data
 contigA <- read.table("extractidsA.txt")
 contigB <- read.table("extractidsB.txt")
 contigC <- read.table("extractidsC.txt")
@@ -18,6 +22,7 @@ contigL <- read.table("extractidsL.txt")
 contiglen <- sort(contigA$V1) # if you want to sort it..
 hist(as.numeric(contigA$V1))
 
+# plot distribution for each sample
 jpeg("CGML001A-L_contigdistr.jpg", height=10, width=15, units="in", res=600)
 par(mfrow=c(3,4))
 hist(as.numeric(contigA$V1), breaks=50, col="tomato", xlab="Contig length", 
