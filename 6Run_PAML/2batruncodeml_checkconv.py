@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # goal here is to combine the nullbatruncodeml.py, postbatruncodeml.py, and rerun_codeml.py scripts
-# it will run codeml for both models with different starting values
+# it will run codeml for both models with different starting values, checking for convergence, and grab lnL values
 # TODO: test that it works
 
 # import modules
@@ -68,6 +68,7 @@ kappa_starts = [0, 0.5, 1, 3.5, 15] # range of start values for kappa
 omega_starts = [0, 0.5, 1, 3.5, 15] # range of start values for omega
 #omega_starts = [0,0.5] # use to test code
 
+# Run codeml (both models) with different starting values
 for aname in alignmentfiles: ## TODO: check that input names correct for file_null and file_pos
 	if '.phylip' in aname:
 		file_null = aname.split('_')[0]
@@ -91,8 +92,8 @@ for aname in alignmentfiles: ## TODO: check that input names correct for file_nu
 				print '---------------------------------------'
 				
 			else: 
-				os.system('mv ' + file_null + '_modAnull.out ./codemlresults') ## TODO: edit output directory
-				print 'Success!!!', file_null, ' moved to codemlresults directory'
+				os.system('mv ' + file_null + '_modAnull.out ./Codeml_outputs') ## TODO: edit output directory
+				print 'Success!!!', file_null, ' moved to Codeml_outputs directory'
 				print '----------------------------------------------------------------'
 				break
 				
@@ -120,14 +121,16 @@ for aname in alignmentfiles: ## TODO: check that input names correct for file_nu
 				print '---------------------------------------'
 				
 			else: 
-				os.system('mv ' + file_pos + '_modApos.out ./codemlresults')
-				print 'Success!!!', file_pos, ' moved to codemlresults directory'
+				os.system('mv ' + file_pos + '_modApos.out ./Codeml_outputs')
+				print 'Success!!!', file_pos, ' moved to Codeml_outputs directory'
 				print '----------------------------------------------------------------'
 				break
 				
 			counter += 1
 
-
+# grab the lnL outputs to check if results significant, the results file will be in the Run_codeml directory (or whichever directory this script is in)
+os.system('grep lnL ./Codeml_outputs/*null.out | awk \'{print $1"\t"$5}\' > lnL_null.txt')
+os.system('grep lnL ./Codeml_outputs/*pos.out | awk \'{print $1"\t"$5}\' > lnL_pos.txt')
 
 
 
