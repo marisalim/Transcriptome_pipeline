@@ -1,11 +1,12 @@
 Transcriptome_pipeline
 -
 Author: Marisa Lim
-
-This repository contains code for assembling transcriptome data. See Transcriptome_pipe_code.jpg for explanation about the scripts.
-
 Contact: marisalim@stonybrook.edu
 
+This repository contains code for assembling and analyzing transcriptome data. See Transcriptome_pipe _code.jpg for explanation about the scripts.
+
+
+---
 
 
 License: This code is available under a BSD 2-Clause License.
@@ -25,8 +26,3 @@ EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
 STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-Contact information
-=
- Marisa Lim's email:
-marisa.lim@stonybrook.edu
