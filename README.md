@@ -1,8 +1,12 @@
 Transcriptome_pipeline
-=
-Author: Marisa Lim
 -
-This repository contains code for assembling transcriptome data.
+Author: Marisa Lim
+
+This repository contains code for assembling transcriptome data. See Transcriptome_pipe_code.jpg for explanation about the scripts.
+
+Contact: marisalim@stonybrook.edu
+
+
 
 License: This code is available under a BSD 2-Clause License.
 
