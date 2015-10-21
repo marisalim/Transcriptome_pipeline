@@ -1,49 +1,54 @@
+# Code to find RBH ensembl ids across all 12 species and grab the sequences > needed for downstream alignment and analysis
+# 1. find reciprocal best hits (RBH) across species
+# 2. match gene names to peptide ids
+# 3. match ensembl id of rbh to contig id in assembly files 
+# 4. grab sequences for the matching contig ids
+# 5. match up the sequences for each gene
+
 # Marisa Lim (c)2015
-MLwd = "C:/Users/mcwlim/Dropbox/Marisacompfiles/Transcriptome files"
-setwd(MLwd)
 
 # Load libraries
 require(plyr)
 library(seqinr)
-
-# -------------------------------------
-# find RBHs shared between all species
-# -------------------------------------
-version2 <- function(){
-  # Create infile lists <- these are the outputs from theblastparser.py
-  rbhfolder = "RBH/"
-  rbhfiles <- list.files(paste(rbhfolder,sep="/"),pattern=".out",full.name=T,recursive=T)
-  
-  complist <- list()
-  for(i in 1:length(rbhfiles)){
-    # load infile_rbh
-    infile_rbh <- read.table(rbhfiles[i])
-    colnames(infile_rbh) <- c("contig_id", "Ensembl_id", "Query_start", "Query_end", "Target_start", "Target_end", "evalue", "Bit_score")
-    complist[[i]] <- as.vector(infile_rbh[,2])
-  }
-  hits <- Reduce(intersect, complist)
-  #length(hits)
-  #head(hits)
-  hitsvec <- as.vector(hits)
-  #length(hitsvec)
-}
-version2()
-
-# ---------------------------------------------------------
-# Use biomaRt to find gene names and GO info for these hits
-# ---------------------------------------------------------
 library(biomaRt)
 #biocLite("GO.db")
 library("GO.db")
 
+# set working directory
+MLwd = "C:/Users/mcwlim/Dropbox/Marisacompfiles/Transcriptome files"
+setwd(MLwd)
+
+# ---------------------- 1. find RBHs shared between all species ----------------------
+# Create infile lists <- these are the outputs from theblastparser.py
+rbhfolder = "RBH/"
+rbhfiles <- list.files(paste(rbhfolder,sep="/"),pattern=".out",full.name=T,recursive=T)
+
+# create a list of peptide ids for each sample (in each slot of the list)
+complist <- list()
+for(i in 1:length(rbhfiles)){
+  # load infile_rbh
+  infile_rbh <- read.table(rbhfiles[i])
+  colnames(infile_rbh) <- c("contig_id", "Ensembl_id", "Query_start", "Query_end", "Target_start", "Target_end", "evalue", "Bit_score")
+  complist[[i]] <- as.vector(infile_rbh[,2])
+}
+# find the intersections between all 12 species in the list, these are the RBH across all 12 species
+hits <- Reduce(intersect, complist)
+#length(hits)
+#head(hits)
+
+# make the rbh list a vector for biomaRt
+hitsvec <- as.vector(hits)
+#length(hitsvec)
+
+# ---------------------- Use biomaRt to find gene names and GO info for these hits ----------------------
+# set up database to search
 ensembl = useMart("ensembl", dataset="tguttata_gene_ensembl")
 filters = listFilters(ensembl)
 head(filters)
 attributes = listAttributes(ensembl)
 head(attributes)
 
-# test code for biomaRt
-# =====================
+# ====================== test code for biomaRt =====================
 grep("go",attributes$description, ignore.case=T, value=T)
 
 test <- 'ENSTGUP00000000081'
@@ -71,14 +76,14 @@ as.data.frame(Term(test2go$go_id))
 #one of the GO terms is obsolete, use na.omit to circumvent
 na.omit(as.data.frame(Term(test2go$go_id)))
 
-# ===========================
-# now biomaRt with real data:
-# ===========================
+# ====================== 2. now biomaRt with real data: ======================
+# search biomart
 hits_go <- getBM(attributes=c('ensembl_peptide_id', 'go_id', 'hgnc_symbol'), filters='ensembl_peptide_id', values=hitsvec, mart=ensembl)
 head(hits_go)
 dim(hits_go)
 class(hits_go)
 
+# get GO terms
 goterms <- as.data.frame(Term(hits_go$go_id))
 head(goterms)
 class(goterms)
@@ -99,9 +104,7 @@ write.csv(hits_go2, "Sharedhits_gene_descript.csv")
 hits_list <- data.frame(Ensembl_id = hits_go2[,1])
 write.csv(hits_list, "Sharedhits_list.csv")
 
-# -------------------------------------------------------------------------
-# Match ensembl id of shared hits to contig ID (need this to find sequence
-# -------------------------------------------------------------------------
+# ---------------------- 3. Match ensembl id of shared hits to contig ID (need this to find sequence ----------------------
 # Function to match shared hits list to contig ids
 matchcontig <- function(){
   # make output folder
@@ -149,9 +152,7 @@ matchcontig <- function(){
 }
 matchcontig()
 
-# --------------------------------------
-# Get sequences from matched contig ids
-# --------------------------------------
+# ---------------------- 4. Get sequences from matched contig ids ----------------------
 # Function that uses contig ids to pull out the sequences
 getmyseqs <- function(){
   # make output folder
@@ -190,10 +191,7 @@ getmyseqs <- function(){
 }
 getmyseqs()
 
-# ---------------------------------------------------------
-# Match up the sequences for each gene from the 12 species
-# ---------------------------------------------------------
-
+# ---------------------- 5. Match up the sequences for each gene from the 12 species ----------------------
 # for each of the 12 seq files, grab all rows that match given ensembl id from hits_list2
 makegenefiles <- function(){
   # make output folder
