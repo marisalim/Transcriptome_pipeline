@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 
-# can search files for 'check convergence', if found:
-# write file name to rerun.txt
-# use this rerun.txt list to search the phylipforpaml files
-# grab the files to rerun and put back into paml loop
-# def codeml function with input 'element' for the file name and starting values...
-# in while loop that runs the function, set the different starting values
-# eventually, should build this into the original script (nullbatrun or posbatrun)
+# goal here is to combine the nullbatruncodeml.py, postbatruncodeml.py, and rerun_codeml.py scripts
+# it will run codeml for both models with different starting values
+# TODO: test that it works
 
 # import modules
 import os
@@ -63,17 +59,20 @@ def ModelA_poscodeml(element, kappastart, omegastart):
 	cml.set_options(cleandata = 1)
 	cml.run(verbose = True)
 	
-reruns = open('reruntest.txt', 'r')
+# Input files
+alignmentfiles = [f for f in os.listdir('./phylipforpaml/parttwo/')] ## TODO: check that this is the correct directory for inputs
+
+# Choose start values
 kappa_starts = [0, 0.5, 1, 3.5, 15] # range of start values for kappa
 #kappa_starts = [0,0.5] # use to test code
 omega_starts = [0, 0.5, 1, 3.5, 15] # range of start values for omega
 #omega_starts = [0,0.5] # use to test code
 
-for aname in reruns:
-	if 'null' in aname:
-		file_rerun = aname.split('_')[0]
+for aname in alignmentfiles: ## TODO: check that input names correct for file_null and file_pos
+	if '.phylip' in aname:
+		file_null = aname.split('_')[0]
 		print '-----------------------------------------------------'
-		print 'File to rerun null model on: ', file_rerun
+		print 'File to rerun null model on: ', file_null
 		print '-----------------------------------------------------'
 		
 		notconverged = True #set this to initial state for while loop
@@ -85,24 +84,24 @@ for aname in reruns:
 				print 'If you see this message, then the file has still NOT converged. Sigh...'
 				break
 				
-			ModelA_nullcodeml(file_rerun, kappa_starts[counter])
+			ModelA_nullcodeml(file_null, kappa_starts[counter])
 	
-			if 'check convergence..' in open(file_rerun + '_modAnull.out').read():
-				print 'Nope, try again...', file_rerun
+			if 'check convergence..' in open(file_null + '_modAnull.out').read(): 
+				print 'Nope, try again...', file_null
 				print '---------------------------------------'
 				
 			else: 
-				os.system('mv ' + file_rerun + '_modAnull.out ./thereruns')
-				print 'Success!!!', file_rerun, ' moved to thereruns directory'
+				os.system('mv ' + file_null + '_modAnull.out ./codemlresults') ## TODO: edit output directory
+				print 'Success!!!', file_null, ' moved to codemlresults directory'
 				print '----------------------------------------------------------------'
 				break
 				
 			counter += 1
 			
-	if 'pos' in aname:
-		file_rerun = aname.split('_')[0]
+	if '.phylip' in aname:
+		file_pos = aname.split('_')[0]
 		print '-----------------------------------------------------'
-		print 'File to rerun pos model on: ', file_rerun
+		print 'File to rerun pos model on: ', file_pos
 		print '-----------------------------------------------------'
 		
 		notconverged = True #set this to initial state for while loop
@@ -114,15 +113,15 @@ for aname in reruns:
 				print 'If you see this message, then the file has still NOT converged. Sigh...'
 				break
 				
-			ModelA_poscodeml(file_rerun, kappa_starts[counter], omega_starts[counter])
+			ModelA_poscodeml(file_pos, kappa_starts[counter], omega_starts[counter])
 	
-			if 'check convergence..' in open(file_rerun + '_modApos.out').read():
-				print 'Nope, try again...', file_rerun
+			if 'check convergence..' in open(file_pos + '_modApos.out').read():
+				print 'Nope, try again...', file_pos
 				print '---------------------------------------'
 				
 			else: 
-				os.system('mv ' + file_rerun + '_modApos.out ./thereruns')
-				print 'Success!!!', file_rerun, ' moved to thereruns directory'
+				os.system('mv ' + file_pos + '_modApos.out ./codemlresults')
+				print 'Success!!!', file_pos, ' moved to codemlresults directory'
 				print '----------------------------------------------------------------'
 				break
 				

@@ -2,8 +2,7 @@
 
 #PAML analyses - test positive selection model
 
-## To do: add functions to run at different starting values...
-
+# import modules
 import os
 from Bio.Phylo.PAML import codeml
 
