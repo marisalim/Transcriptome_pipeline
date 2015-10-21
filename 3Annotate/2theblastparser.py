@@ -5,6 +5,7 @@
 
 Usage = """RBH BLASTOUTPUT1 BLASTOUTPUT2 RBH-list-outfile """
 
+# import modules
 import sys, re
 
 if len(sys.argv) < 3:
@@ -12,6 +13,7 @@ if len(sys.argv) < 3:
  
 debug = 9
 
+# input files
 infl1 = sys.argv[1] #Blast result from A to B
 infl2 = sys.argv[2] #Blast result from B to A
 outfile = sys.argv[3] #Output file name
@@ -61,7 +63,7 @@ if (debug): D2.keys()
 #print "D1: ", D1
 #print "D2: ", D2
 
-#Now, pick the share pairs
+#Now, pick the shared pairs
 SharedPairs={}
 for id1 in D1.keys():
 	value1 = D1[id1][0]
@@ -78,6 +80,7 @@ for id1 in D1.keys():
 		
 if (debug): SharedPairs 
 
+# now, save the RBH results in output file
 outfl = open( outfile, 'w')
 
 for k1 in SharedPairs.keys():
