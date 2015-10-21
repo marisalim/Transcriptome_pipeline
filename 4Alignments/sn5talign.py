@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+# Assumes you already have the outputs from Mafft and just want to run transAlign (Mafft run in 1cutalign.py)
 # use Mafft alignments (from the cutalign.py script) and run transAlign.pl to align the amino acids. 
 # cutalign.py used default -sn threshold, here change to -sn5
 
