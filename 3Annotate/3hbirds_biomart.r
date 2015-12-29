@@ -42,7 +42,7 @@ hitsvec <- as.vector(hits)
 
 # ---------------------- Use biomaRt to find gene names and GO info for these hits ----------------------
 # set up database to search
-ensembl = useMart("ensembl", dataset="tguttata_gene_ensembl")
+ensembl = useMart("ENSEMBL_MART_ENSEMBL", dataset= "tguttata_gene_ensembl", host="www.ensembl.org")
 filters = listFilters(ensembl)
 head(filters)
 attributes = listAttributes(ensembl)
