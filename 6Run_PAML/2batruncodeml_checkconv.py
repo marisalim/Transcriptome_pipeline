@@ -72,7 +72,7 @@ for aname in alignmentfiles: ## TODO: check that input names correct for file_nu
 	if '.phylip' in aname:
 		file_null = aname.split('.')[0]
 		print '-----------------------------------------------------'
-		print 'File to rerun null model on: ', file_null
+		print 'File to run null model on: ', file_null
 		print '-----------------------------------------------------'
 		
 		notconverged = True #set this to initial state for while loop
@@ -103,7 +103,7 @@ for aname in alignmentfiles:
 	if '.phylip' in aname:
 		file_pos = aname.split('.')[0]
 		print '-----------------------------------------------------'
-		print 'File to rerun pos model on: ', file_pos
+		print 'File to run pos model on: ', file_pos
 		print '-----------------------------------------------------'
 		
 		notconverged = True #set this to initial state for while loop
