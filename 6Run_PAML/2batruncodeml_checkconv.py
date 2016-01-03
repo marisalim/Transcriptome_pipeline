@@ -2,7 +2,6 @@
 
 # goal here is to combine the nullbatruncodeml.py, postbatruncodeml.py, and rerun_codeml.py scripts
 # it will run codeml for both models with different starting values, checking for convergence, and grab lnL values
-# TODO: test that it works
 
 # import modules
 import os
@@ -63,10 +62,10 @@ def ModelA_poscodeml(element, kappastart, omegastart):
 alignmentfiles = [f for f in os.listdir('./alignments_for_codeml/phylipforpaml/')] ## TODO: check that this is the correct directory for inputs
 
 # Choose start values
-#kappa_starts = [0, 0.5, 1, 3.5, 15] # range of start values for kappa
-kappa_starts = [0,0.5] # use to test code
-#omega_starts = [0, 0.5, 1, 3.5, 15] # range of start values for omega
-omega_starts = [0,0.5] # use to test code
+kappa_starts = [0, 0.5, 1, 3.5, 15] # range of start values for kappa
+#kappa_starts = [0,0.5] # use to test code
+omega_starts = [0, 0.5, 1, 3.5, 15] # range of start values for omega
+#omega_starts = [0,0.5] # use to test code
 
 # Run codeml (null model) with different starting values
 for aname in alignmentfiles: ## TODO: check that input names correct for file_null and file_pos
@@ -100,39 +99,39 @@ for aname in alignmentfiles: ## TODO: check that input names correct for file_nu
 			counter += 1
 			
 # Run codeml (positive selection model) with different starting values			
-#for aname in alignmentfiles:
-#	if '.phylip' in aname:
-#		file_pos = aname.split('.')[0]
-#		print '-----------------------------------------------------'
-#		print 'File to rerun pos model on: ', file_pos
-#		print '-----------------------------------------------------'
+for aname in alignmentfiles:
+	if '.phylip' in aname:
+		file_pos = aname.split('.')[0]
+		print '-----------------------------------------------------'
+		print 'File to rerun pos model on: ', file_pos
+		print '-----------------------------------------------------'
 		
-#		notconverged = True #set this to initial state for while loop
-#		counter = 0 # to move consecutively through the values
+		notconverged = True #set this to initial state for while loop
+		counter = 0 # to move consecutively through the values
 		
-#		while notconverged:
-#			if counter > 4:
-#				print 'Ok, all start values have been tried.'
-#				print 'If you see this message, then the file has still NOT converged. Sigh...'
-#				break
+		while notconverged:
+			if counter > 4:
+				print 'Ok, all start values have been tried.'
+				print 'If you see this message, then the file has still NOT converged. Sigh...'
+				break
 				
-#			ModelA_poscodeml(file_pos, kappa_starts[counter], omega_starts[counter])
+			ModelA_poscodeml(file_pos, kappa_starts[counter], omega_starts[counter])
 	
-#			if 'check convergence..' in open(file_pos + '_modApos.out').read():
-#				print 'Nope, try again...', file_pos
-#				print '---------------------------------------'
+			if 'check convergence..' in open(file_pos + '_modApos.out').read():
+				print 'Nope, try again...', file_pos
+				print '---------------------------------------'
 				
-#			else: 
-#				os.system('mv ' + file_pos + '_modApos.out ./Codeml_outputs')
-#				print 'Success!!!', file_pos, ' moved to Codeml_outputs directory'
-#				print '----------------------------------------------------------------'
-#				break
+			else: 
+				os.system('mv ' + file_pos + '_modApos.out ./Codeml_outputs')
+				print 'Success!!!', file_pos, ' moved to Codeml_outputs directory'
+				print '----------------------------------------------------------------'
+				break
 				
-#			counter += 1
+			counter += 1
 
 # grab the lnL outputs to check if results significant, the results file will be in the Run_codeml directory (or whichever directory this script is in)
-#os.system('grep lnL ./Codeml_outputs/*null.out | awk \'{print $1"\t"$5}\' > lnL_null.txt')
-#os.system('grep lnL ./Codeml_outputs/*pos.out | awk \'{print $1"\t"$5}\' > lnL_pos.txt')
+os.system('grep lnL ./Codeml_outputs/*null.out | awk \'{print $1"\t"$5}\' > lnL_null.txt')
+os.system('grep lnL ./Codeml_outputs/*pos.out | awk \'{print $1"\t"$5}\' > lnL_pos.txt')
 
 
 
