@@ -111,10 +111,12 @@ def check_frame(prots, seq, gene):
 def write_files(prots, out_dir, genes):
 	to_align_files = []
 	for gene in genes:
-		# Note: genes = the Ensembl peptide ID, gene = the sequence
+		# Note: gene = the Ensembl peptide ID, genes = Trinity_*: the sequence
 		# are the focal species in this gene?
 		# Note: if you write one species here, you can get genes for just that species, but if you want to align all 12 species, you have to write all of the names here in the if statement
+		# BUT: this statement grabs anything with any of these labels...not just the ones with all 12...
 		if 'Trinity_A' in genes[gene] and 'Trinity_B' in genes[gene] and 'Trinity_C' in genes[gene] and 'Trinity_D' in genes[gene] and 'Trinity_E' in genes[gene] and 'Trinity_F' in genes[gene] and 'Trinity_G' in genes[gene] and 'Trinity_H' in genes[gene] and 'Trinity_I' in genes[gene] and 'Trinity_J' in genes[gene] and 'Trinity_K' in genes[gene] and 'Trinity_L' in genes[gene]: 
+			print 'Yes, 12 species for %s' % gene
 			
 			max_length = np.max([len(x) for x in genes[gene].values()])
 			out_file = '%s/%s.fa' % (out_dir, gene)
@@ -133,8 +135,13 @@ def write_files(prots, out_dir, genes):
 						o.write('>%s.%s\n%s\n' % (species, gene, seq))
 			o.close()
 			to_align_files.append(out_file) # this appends results, so if you rerun, delete old results first
+			
+		else:
+			print 'No, fewer than 12 species for %s' % gene
+			continue
+			
 	return to_align_files	
-
+			
 # Generate inputs for final write_files()	
 prots = get_protein(prot_db)
 for species in specieses:
@@ -143,4 +150,3 @@ for species in specieses:
 to_align_files = write_files(prots, out_dir, genes)
 
 print "All functions completed yay yay yay! Ok, now let's rename the Trinity_* to species names!"
-
