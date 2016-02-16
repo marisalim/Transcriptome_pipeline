@@ -13,6 +13,3 @@ module load blast/2.2.31-all
 #
 # Get CDS - writes a file for each gene for each assembly
 python /crucible/bi4iflp/mlim/Annotation/Get_CDS.py
-#
-# Now rename the fasta files with species names instead of Trinity_*
-python /crucible/bi4iflp/mlim/Annotation/rename_cdsfiles.py
