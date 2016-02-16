@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
-# This script is modified from Sonal Singhal: It will extract the CDS, translate sequence and check reading frame, and then write resulting sequences to file
+# This script is modified from Sonal Singhal: It will extract the CDS, translate sequence and check reading frame, and then write resulting sequences to file for nuclear DNA sequences (mtDNA in progress)
 # First, load modules on Greenfield first: module load python/2.7.10-mkl; module load blast/2.2.31-all
+
+# FIXME: extract CDS for mitochondrial genes
 
 import re
 import subprocess
@@ -15,6 +17,7 @@ specieses = ['Trinity_A', 'Trinity_B', 'Trinity_C', 'Trinity_D', 'Trinity_E', 'T
 #myspeciesnames = ['a_Phlogophilus_harterti'] # test with this
 genes = {}
 out_dir = '/crucible/bi4iflp/mlim/Annotation/CDS_files/'
+mito_out_dir = '/crucible/bi4iflp/mlim/Annotation/CDS_files/Mito_CDS_files/'
 prot_db = '/crucible/bi4iflp/mlim/Annotation/Taeniopygia_guttata.taeGut3.2.4.pep.all.fa' 
 
 def get_protein(prot_db):
@@ -56,9 +59,10 @@ def get_seqs(species, genes):
 				genes[gene][species] = cds
 	return genes
 
+# this is for nuclear DNA
 def translate(seq):
 	map = {	'TTT':'F', 'TTC':'F', 'TTA':'L', 'TTG':'L',
-    		'TCT':'S', 'TCC':'s', 'TCA':'S', 'TCG':'S',
+    		'TCT':'S', 'TCC':'S', 'TCA':'S', 'TCG':'S',
   		'TAT':'Y', 'TAC':'Y', 'TAA':'*', 'TAG':'*',
     		'TGT':'C', 'TGC':'C', 'TGA':'*', 'TGG':'W',
     		'CTT':'L', 'CTC':'L', 'CTA':'L', 'CTG':'L',
@@ -83,7 +87,7 @@ def translate(seq):
 			aa += 'X'
 	return aa
 
-def check_frame(prots, seq, gene):
+def nu_check_frame(prots, seq, gene):
 	for i in range(0,3):
 		# translate that frame
 		aa = translate(seq[i:])
@@ -106,8 +110,8 @@ def check_frame(prots, seq, gene):
 		
 		if (top_match > 30):
 			return i
-	return None
-			
+	return None	
+	
 def write_files(prots, out_dir, genes):
 	to_align_files = []
 	for gene in genes:
@@ -119,12 +123,13 @@ def write_files(prots, out_dir, genes):
 			print 'Yes, 12 species for %s' % gene
 			
 			max_length = np.max([len(x) for x in genes[gene].values()])
+#			print 'max_length: ', max_length
 			out_file = '%s/%s.fa' % (out_dir, gene)
 			o = open(out_file, 'w')
 
 			for species in genes[gene]:
 				# check frame
-				frame = check_frame(prots, genes[gene][species], gene)
+				frame = nu_check_frame(prots, genes[gene][species], gene)
 				# check length
 				if frame != None:
 					#print "This is frame: ", frame # what does 0 mean?
@@ -140,13 +145,111 @@ def write_files(prots, out_dir, genes):
 			print 'No, fewer than 12 species for %s' % gene
 			continue
 			
-	return to_align_files	
+	return to_align_files		
+
+# this is for mtDNA	
+def mito_translate(seq):
+	mito_map = {'TTT':'F', 'TTC':'F', 'TTA':'L', 'TTG':'L',
+    		'TCT':'S', 'TCC':'S', 'TCA':'S', 'TCG':'S',
+  		'TAT':'Y', 'TAC':'Y', 'TAA':'*', 'TAG':'*',
+    		'TGT':'C', 'TGC':'C', 'TGA':'W', 'TGG':'W',
+    		'CTT':'L', 'CTC':'L', 'CTA':'L', 'CTG':'L',
+    		'CCT':'P', 'CCC':'P', 'CCA':'P', 'CCG':'P',
+    		'CAT':'H', 'CAC':'H', 'CAA':'Q', 'CAG':'Q',
+    		'CGT':'R', 'CGC':'R', 'CGA':'R', 'CGG':'R',
+    		'ATT':'I', 'ATC':'I', 'ATA':'M', 'ATG':'M',
+   		'ACT':'T', 'ACC':'T', 'ACA':'T', 'ACG':'T',
+    		'AAT':'N', 'AAC':'N', 'AAA':'K', 'AAG':'K',
+    		'AGT':'S', 'AGC':'S', 'AGA':'*', 'AGG':'*',
+    		'GTT':'V', 'GTC':'V', 'GTA':'V', 'GTG':'V',
+    		'GCT':'A', 'GCC':'A', 'GCA':'A', 'GCG':'A',
+    		'GAT':'D', 'GAC':'D', 'GAA':'E', 'GAG':'E',
+    		'GGT':'G', 'GGC':'G', 'GGA':'G', 'GGG':'G'}
+	
+	mito_triplets = [seq[i:i+3] for i in range(0, len(seq), 3)]
+	mito_aa = ''
+	for mito_triplet in mito_triplets:
+		if mito_triplet in mito_map:
+			mito_aa += mito_map[mito_triplet]
+		else:
+			mito_aa += 'X'
+	return mito_aa
+		
+def mito_check_frame(prots, seq, gene):
+	for i in range(0,3):
+		# translate that frame
+		mito_aa = mito_translate(seq[i:])
+		# do the blast
+		query = 'query.fa'
+		q = open(query, 'w')
+		q.write('>query\n%s\n' % mito_aa)
+		q.close()
+		subject = 'subject.fa'
+                s = open(subject, 'w')
+                s.write('>subject\n%s\n' % prots[gene])
+                s.close()
+
+		blast = subprocess.Popen('blastp -query %s -subject %s -outfmt 6' % (query, subject), shell=True, stdout=subprocess.PIPE)
+		top_match = 0 
+		for l in blast.stdout:
+			d = re.split('\t', l.rstrip())
+			if float(d[2]) > top_match:
+				top_match = float(d[2])
+		
+		if (top_match > 30):
+			return i
+	return None
+				
+def mito_write_files(prots, mito_out_dir, genes):
+	mito_to_align_files = []
+	for gene in genes:
+		# are the focal species in this gene?
+		if 'Trinity_A' in genes[gene] and 'Trinity_B' in genes[gene] and 'Trinity_C' in genes[gene] and 'Trinity_D' in genes[gene] and 'Trinity_E' in genes[gene] and 'Trinity_F' in genes[gene] and 'Trinity_G' in genes[gene] and 'Trinity_H' in genes[gene] and 'Trinity_I' in genes[gene] and 'Trinity_J' in genes[gene] and 'Trinity_K' in genes[gene] and 'Trinity_L' in genes[gene]: 
+#			print 'Yes, 12 species for %s' % gene
+			
+			max_length = np.max([len(x) for x in genes[gene].values()])
+#			print 'max_length: ', max_length
+			out_file = '%s%s.fa' % (mito_out_dir, gene)
+			o = open(out_file, 'w')
+
+			for species in genes[gene]:
+				# check frame
+				frame = mito_check_frame(prots, genes[gene][species], gene)
+				# check length
+				if frame != None:
+					#print "This is frame: ", frame # what does 0 mean?
+					mito_aa = mito_translate(genes[gene][species][frame:])
+
+					seq_search = re.search('^([^\*]+)', mito_aa)
+					# need to add this because sometimes the search comes up with no result (NoneType)
+					if seq_search != None:
+#						print 'Yes, result found!'
+						len_seq = len(seq_search.group(1))*3
+#						print 'len_seq: ', len_seq
+					
+						if (len_seq / float(max_length)) > 0.8:	
+#							print 'OK'
+							seq = genes[gene][species][frame:(frame+len_seq)]
+							o.write('>%s.%s\n%s\n' % (species, gene, seq))
+			o.close()
+			mito_to_align_files.append(out_file) # this appends results, so if you rerun, delete old results first
+			
+		else:
+#			print 'No, fewer than 12 species for %s' % gene
+			continue
+			
+
+	return mito_to_align_files				
 			
 # Generate inputs for final write_files()	
 prots = get_protein(prot_db)
 for species in specieses:
 	genes = get_seqs(species, genes)
 
-to_align_files = write_files(prots, out_dir, genes)
+# Write files for nuclear genes
+#to_align_files = write_files(prots, out_dir, genes)
+
+# Write files for mitochondrial genes
+mito_to_align_files = mito_write_files(prots, mito_out_dir, genes)
 
 print "All functions completed yay yay yay! Ok, now let's rename the Trinity_* to species names!"
