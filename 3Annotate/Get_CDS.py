@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
-# This script is modified from Sonal Singhal: It will extract the CDS, translate sequence and check reading frame, and then write resulting sequences to file for nuclear DNA sequences (mtDNA in progress)
+# This script is modified from Sonal Singhal: It will extract the CDS, translate sequence and check reading frame, and then write resulting sequences to file for nuclear DNA sequences and mtDNA sequences
 # First, load modules on Greenfield first: module load python/2.7.10-mkl; module load blast/2.2.31-all
-
-# FIXME: extract CDS for mitochondrial genes
 
 import re
 import subprocess
@@ -123,7 +121,6 @@ def write_files(prots, out_dir, genes):
 			print 'Yes, 12 species for %s' % gene
 			
 			max_length = np.max([len(x) for x in genes[gene].values()])
-#			print 'max_length: ', max_length
 			out_file = '%s/%s.fa' % (out_dir, gene)
 			o = open(out_file, 'w')
 
@@ -208,7 +205,6 @@ def mito_write_files(prots, mito_out_dir, genes):
 #			print 'Yes, 12 species for %s' % gene
 			
 			max_length = np.max([len(x) for x in genes[gene].values()])
-#			print 'max_length: ', max_length
 			out_file = '%s%s.fa' % (mito_out_dir, gene)
 			o = open(out_file, 'w')
 
@@ -223,12 +219,9 @@ def mito_write_files(prots, mito_out_dir, genes):
 					seq_search = re.search('^([^\*]+)', mito_aa)
 					# need to add this because sometimes the search comes up with no result (NoneType)
 					if seq_search != None:
-#						print 'Yes, result found!'
 						len_seq = len(seq_search.group(1))*3
-#						print 'len_seq: ', len_seq
 					
 						if (len_seq / float(max_length)) > 0.8:	
-#							print 'OK'
 							seq = genes[gene][species][frame:(frame+len_seq)]
 							o.write('>%s.%s\n%s\n' % (species, gene, seq))
 			o.close()
@@ -247,7 +240,7 @@ for species in specieses:
 	genes = get_seqs(species, genes)
 
 # Write files for nuclear genes
-#to_align_files = write_files(prots, out_dir, genes)
+to_align_files = write_files(prots, out_dir, genes)
 
 # Write files for mitochondrial genes
 mito_to_align_files = mito_write_files(prots, mito_out_dir, genes)
