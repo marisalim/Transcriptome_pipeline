@@ -9,7 +9,7 @@ from Bio.Phylo.PAML import codeml
 
 def ModelA_nullcodeml(element, kappastart):
 	cml = codeml.Codeml()
-	cml.alignment = './alignments_for_codeml/phylipforpaml/' +  element + '.phylip'
+	cml.alignment = '../For_codeml/phylipforpaml/' +  element + '.phylip'
 	cml.tree = 'transcriptometree_root.phy'
 	cml.out_file = element + '_modAnull.out'
 	cml.working_dir = './'
@@ -34,7 +34,7 @@ def ModelA_nullcodeml(element, kappastart):
 	
 def ModelA_poscodeml(element, kappastart, omegastart):
 	cml = codeml.Codeml()
-	cml.alignment = './alignments_for_codeml/phylipforpaml/' + element + '.phylip'
+	cml.alignment = '../For_codeml/phylipforpaml/' + element + '.phylip'
 	cml.tree = 'transcriptometree_root.phy'
 	cml.out_file = element + '_modApos.out'
 	cml.working_dir = './'
@@ -59,16 +59,16 @@ def ModelA_poscodeml(element, kappastart, omegastart):
 	cml.run(verbose = True)
 	
 # Input files
-alignmentfiles = [f for f in os.listdir('./alignments_for_codeml/phylipforpaml/')] ## TODO: check that this is the correct directory for inputs
+alignmentfiles = [f for f in os.listdir('../For_codeml/phylipforpaml/')]
 
 # Choose start values
-kappa_starts = [0, 0.5, 1, 3.5, 15] # range of start values for kappa
-#kappa_starts = [0,0.5] # use to test code
-omega_starts = [0, 0.5, 1, 3.5, 15] # range of start values for omega
-#omega_starts = [0,0.5] # use to test code
+#kappa_starts = [0, 0.5, 1, 3.5, 15] # range of start values for kappa
+kappa_starts = [0,0.5] # use to test code
+#omega_starts = [0, 0.5, 1, 3.5, 15] # range of start values for omega
+omega_starts = [0,0.5] # use to test code
 
 # Run codeml (null model) with different starting values
-for aname in alignmentfiles: ## TODO: check that input names correct for file_null and file_pos
+for aname in alignmentfiles: 
 	if '.phylip' in aname:
 		file_null = aname.split('.')[0]
 		print '-----------------------------------------------------'
@@ -97,7 +97,7 @@ for aname in alignmentfiles: ## TODO: check that input names correct for file_nu
 				break
 				
 			counter += 1
-			
+		
 # Run codeml (positive selection model) with different starting values			
 for aname in alignmentfiles:
 	if '.phylip' in aname:
@@ -134,9 +134,6 @@ os.system('grep lnL ./Codeml_outputs/*null.out | awk \'{print $1"\t"$5}\' > lnL_
 os.system('grep lnL ./Codeml_outputs/*pos.out | awk \'{print $1"\t"$5}\' > lnL_pos.txt')
 
 
-
-
-		
 
 				
 		
