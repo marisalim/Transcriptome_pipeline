@@ -21,13 +21,15 @@ for myfile in thefiles:
 #		print float(seqlen) % 3 != 0
 #		print float(seqlen) % 3
 	
-		if float(seqlen) % 3 != 0:
-			out1 = open('fix_codons.txt', 'a')
-			out1.write(mygene + '\n')
+		if float(seqlen) % 3 == 0:
+			continue
 	
 		else:
-			continue
-out1.close()
+			out1 = open('fix_codons.txt', 'a')
+			out1.write(mygene + '\n')
+out1.close() #i think this part doesn't work if there are no sequences in out1 
+
+print "All done!"
 
 
 
