@@ -12,7 +12,7 @@ from Bio.Nexus import Nexus
 def tonexusphy(element):
 #	print element # this is the fasta input file
 
-	genename = element.split("_")
+	genename = element.split(".")
 	variables = dict(
 	thefile = element, 
 	geneID = genename[0]
@@ -38,11 +38,11 @@ file_list = []
 
 # here, the fasta to nexus file conversion script gets run on all the input files grabbed by thedir (should rename to thefile)
 for afile in thefiles:
-	if '_sub.fasta' in afile:
+	if '.fasta' in afile:
 #		print "afile: ", afile
 
 		tonexusphy(afile) # do the conversion
-		file_list.append(afile.split('_')[0]+'.phylip') # take the gene name only for nexus file name
+		file_list.append(afile.split('.')[0]+'.phylip') # take the gene name only for nexus file name
 
 os.system('mv ' + '*.phylip' + ' ./phylipforpaml/')
 os.system('rm ' + '*.nexus')
