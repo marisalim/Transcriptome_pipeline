@@ -3,13 +3,15 @@
 # goal here is to combine the nullbatruncodeml.py, postbatruncodeml.py, and rerun_codeml.py scripts
 # it will run codeml for both models with different starting values, checking for convergence, and grab lnL values
 
+# NOTE: this is for mitochondrial dna sequences
+
 # import modules
 import os
 from Bio.Phylo.PAML import codeml
 
 def ModelA_nullcodeml(element, kappastart):
 	cml = codeml.Codeml()
-	cml.alignment = '../For_codeml/phylipforpaml/' +  element + '.phylip'
+	cml.alignment = '../For_codeml/mtDNA_phylipfiles/' +  element + '.phylip'
 	cml.tree = 'transcriptometree_root.phy'
 	cml.out_file = element + '_modAnull.out'
 	cml.working_dir = './'
@@ -22,7 +24,7 @@ def ModelA_nullcodeml(element, kappastart):
 	aaDist = 0,
 	model = 2, 
 	NSsites = [2],
-	icode = 0,
+	icode = 1, #mammalian mtDNA code
 	Mgene = 0,
 	fix_kappa = 0, # kappa estimated
 	kappa = kappastart, # initial kappa
@@ -34,7 +36,7 @@ def ModelA_nullcodeml(element, kappastart):
 	
 def ModelA_poscodeml(element, kappastart, omegastart):
 	cml = codeml.Codeml()
-	cml.alignment = '../For_codeml/phylipforpaml/' + element + '.phylip'
+	cml.alignment = '../For_codeml/mtDNA_phylipfiles/' + element + '.phylip'
 	cml.tree = 'transcriptometree_root.phy'
 	cml.out_file = element + '_modApos.out'
 	cml.working_dir = './'
@@ -47,7 +49,7 @@ def ModelA_poscodeml(element, kappastart, omegastart):
 	aaDist = 0,
 	model = 2, 
 	NSsites = [2],
-	icode = 0,
+	icode = 1, #mammalian mtDNA code
 	Mgene = 0,
 	fix_kappa = 0, # kappa estimated
 	kappa = kappastart, # initial kappa
@@ -59,7 +61,7 @@ def ModelA_poscodeml(element, kappastart, omegastart):
 	cml.run(verbose = True)
 	
 # Input files
-alignmentfiles = [f for f in os.listdir('../For_codeml/phylipforpaml/')]
+alignmentfiles = [f for f in os.listdir('../For_codeml/mtDNA_phylipfiles/')]
 
 # Choose start values
 kappa_starts = [0, 0.5, 1, 3.5, 15] # range of start values for kappa
@@ -156,3 +158,4 @@ os.system('grep lnL ./Codeml_outputs/*pos.out | awk \'{print $1"\t"$5}\' > lnL_p
 		
 		
 		
+
