@@ -50,9 +50,9 @@ LRTdat$LRT <- 2*(LRTdat$lnL_testmod - LRTdat$lnL_nullmod)
 head(LRTdat)
 
 # plot LRT and significance cutoffs
-rownums <- c(1:163)
-jpeg("LRTplot.jpg", height=5, width=5, units="in", res=500)
-plot(rownums, LRTdat$LRT, pch=20, cex=1.5, xlab="Gene ID", ylab="LRT")
+rownums <- c(1:nrow(LRTdat))
+jpeg("LRTplot.jpg", height=6, width=4, units="in", res=500)
+plot(rownums, LRTdat$LRT, pch=20, cex=1.5, xlab="Gene ID", ylab="LRT", ylim=c(-150,100))
 abline(h=3.84, lwd=2, col="tomato")
 abline(h=6.64, lty=2, lwd=2, col="deepskyblue2")
 abline(h=10.83, lty=4, lwd=2, col="seagreen3")
@@ -64,7 +64,7 @@ dim(LRTdat[LRTdat$LRT >= 6.64,]) # p=0.01
 dim(LRTdat[LRTdat$LRT >= 10.83,]) # p=0.001
 
 # ----------------- search GO terms/info -----------------
-ensembl = useMart("ensembl", dataset="tguttata_gene_ensembl")
+ensembl = useMart("ENSEMBL_MART_ENSEMBL", dataset="tguttata_gene_ensembl", host="www.ensembl.org")
 filters = listFilters(ensembl)
 attributes = listAttributes(ensembl)
 
@@ -119,7 +119,6 @@ CC_NMDS = metaMDS(CCdat[12:ncol(CCdat)], k=2)
 stressplot(MF_NMDS)
 stressplot(BP_NMDS)
 stressplot(CC_NMDS)
-
 
 jpeg("all_NMDS.jpg", height=10, width=10, units="in", res=500)
 par(mfrow=c(3,3))
