@@ -12,7 +12,7 @@ from Bio.Phylo.PAML import codeml
 def ModelA_nullcodeml(element, kappastart):
 	cml = codeml.Codeml()
 	cml.alignment = '../For_codeml/mtDNA_phylipfiles/' +  element + '.phylip'
-	cml.tree = 'transcriptometree_root.phy'
+	cml.tree = 'transcriptometree_noroot.tree' # Note: unrooted tree
 	cml.out_file = element + '_modAnull.out'
 	cml.working_dir = './'
 
@@ -20,7 +20,7 @@ def ModelA_nullcodeml(element, kappastart):
 	runmode = 0,
 	seqtype = 1,
 	CodonFreq = 2,
-	clock = 0,
+	clock = 0, # 0 if unrooted
 	aaDist = 0,
 	model = 2, 
 	NSsites = [2],
@@ -37,7 +37,7 @@ def ModelA_nullcodeml(element, kappastart):
 def ModelA_poscodeml(element, kappastart, omegastart):
 	cml = codeml.Codeml()
 	cml.alignment = '../For_codeml/mtDNA_phylipfiles/' + element + '.phylip'
-	cml.tree = 'transcriptometree_root.phy'
+	cml.tree = 'transcriptometree_noroot.tree'
 	cml.out_file = element + '_modApos.out'
 	cml.working_dir = './'
 
@@ -45,7 +45,7 @@ def ModelA_poscodeml(element, kappastart, omegastart):
 	runmode = 0,
 	seqtype = 1,
 	CodonFreq = 2,
-	clock = 0,
+	clock = 0, # 0 if unrooted
 	aaDist = 0,
 	model = 2, 
 	NSsites = [2],
@@ -57,7 +57,7 @@ def ModelA_poscodeml(element, kappastart, omegastart):
 	omega = omegastart, # initial omega
 	cleandata = 1)
 
-	cml.set_options(cleandata = 1)
+#	cml.set_options(cleandata = 1)
 	cml.run(verbose = True)
 	
 # Input files
@@ -93,47 +93,47 @@ for aname in alignmentfiles:
 				print '---------------------------------------'
 				
 			else: 
-				os.system('mv ' + file_null + '_modAnull.out ./Codeml_outputs')
+				os.system('mv ' + file_null + '_modAnull.out ./mtDNA_codeml_outputs')
 				print 'Success!!!', file_null, ' moved to Codeml_outputs directory'
 				print '----------------------------------------------------------------'
 				break
 				
-			counter += 1
+				counter += 1
 		
 # Run codeml (positive selection model) with different starting values			
-for aname in alignmentfiles:
-	if '.phylip' in aname:
-		file_pos = aname.split('.')[0]
-		print '-----------------------------------------------------'
-		print 'File to run pos model on: ', file_pos
-		print '-----------------------------------------------------'
-		
-		notconverged = True #set this to initial state for while loop
-		counter = 0 # to move consecutively through the values
-		
-		while notconverged:
-			if counter > 4:
-				print 'Ok, all start values have been tried.'
-				print 'If you see this message, then the file has still NOT converged. Sigh...'
-				break
-				
-			ModelA_poscodeml(file_pos, kappa_starts[counter], omega_starts[counter])
+#for aname in alignmentfiles:
+#	if '.phylip' in aname:
+#		file_pos = aname.split('.')[0]
+#		print '-----------------------------------------------------'
+#		print 'File to run pos model on: ', file_pos
+#		print '-----------------------------------------------------'
 	
-			if 'check convergence..' in open(file_pos + '_modApos.out').read():
-				print 'Nope, try again...', file_pos
-				print '---------------------------------------'
+#		notconverged = True #set this to initial state for while loop
+#		counter = 0 # to move consecutively through the values
+		
+#		while notconverged:
+#			if counter > 4:
+#				print 'Ok, all start values have been tried.'
+#				print 'If you see this message, then the file has still NOT converged. Sigh...'
+#				break
 				
-			else: 
-				os.system('mv ' + file_pos + '_modApos.out ./Codeml_outputs')
-				print 'Success!!!', file_pos, ' moved to Codeml_outputs directory'
-				print '----------------------------------------------------------------'
-				break
+#			ModelA_poscodeml(file_pos, kappa_starts[counter], omega_starts[counter])
+	
+#			if 'check convergence..' in open(file_pos + '_modApos.out').read():
+#				print 'Nope, try again...', file_pos
+#				print '---------------------------------------'
 				
-			counter += 1
+#			else: 
+#				os.system('mv ' + file_pos + '_modApos.out ./mtDNA_codeml_outputs')
+#				print 'Success!!!', file_pos, ' moved to Codeml_outputs directory'
+#				print '----------------------------------------------------------------'
+#				break
+				
+#			counter += 1
 
 # grab the lnL outputs to check if results significant, the results file will be in the Run_codeml directory (or whichever directory this script is in)
-os.system('grep lnL ./Codeml_outputs/*null.out | awk \'{print $1"\t"$5}\' > lnL_null.txt')
-os.system('grep lnL ./Codeml_outputs/*pos.out | awk \'{print $1"\t"$5}\' > lnL_pos.txt')
+#os.system('grep lnL ./Codeml_outputs/*null.out | awk \'{print $1"\t"$5}\' > lnL_null_mtdna.txt')
+#os.system('grep lnL ./Codeml_outputs/*pos.out | awk \'{print $1"\t"$5}\' > lnL_pos_mtdna.txt')
 
 
 

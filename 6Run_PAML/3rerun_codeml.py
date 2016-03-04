@@ -14,10 +14,10 @@ from Bio.Phylo.PAML import codeml
 
 def ModelA_nullcodeml(element, kappastart):
 	cml = codeml.Codeml()
-	cml.alignment = "./phylipforpaml/" + element + '.phylip'
-	cml.tree = "transcriptometree_root.phy"
-	cml.out_file = element + "_modAnull.out"
-	cml.working_dir = "./"
+	cml.alignment = '../For_codeml/phylipforpaml/' +  element + '.phylip'
+	cml.tree = 'transcriptometree_noroot.tree'
+	cml.out_file = element + '_modAnull.out'
+	cml.working_dir = './'
 
 	cml.set_options(verbose = 1, 
 	runmode = 0,
@@ -39,10 +39,10 @@ def ModelA_nullcodeml(element, kappastart):
 	
 def ModelA_poscodeml(element, kappastart, omegastart):
 	cml = codeml.Codeml()
-	cml.alignment = "./phylipforpaml/" + element + '.phylip'
-	cml.tree = "transcriptometree_root.phy"
-	cml.out_file = element + "_modApos.out"
-	cml.working_dir = "./"
+	cml.alignment = '../For_codeml/phylipforpaml/' + element + '.phylip'
+	cml.tree = 'transcriptometree_noroot.tree'
+	cml.out_file = element + '_modApos.out'
+	cml.working_dir = './'
 
 	cml.set_options(verbose = 1, 
 	runmode = 0,
@@ -60,10 +60,9 @@ def ModelA_poscodeml(element, kappastart, omegastart):
 	omega = omegastart, # initial omega
 	cleandata = 1)
 
-	cml.set_options(cleandata = 1)
 	cml.run(verbose = True)
 	
-reruns = open('reruntest.txt', 'r')
+reruns = open('rerun.txt', 'r')
 kappa_starts = [0, 0.5, 1, 3.5, 15] # range of start values for kappa
 #kappa_starts = [0,0.5] # use to test code
 omega_starts = [0, 0.5, 1, 3.5, 15] # range of start values for omega
@@ -92,8 +91,8 @@ for aname in reruns:
 				print '---------------------------------------'
 				
 			else: 
-				os.system('mv ' + file_rerun + '_modAnull.out ./thereruns')
-				print 'Success!!!', file_rerun, ' moved to thereruns directory'
+				os.system('mv ' + file_rerun + '_modAnull.out ./Codeml_outputs')
+				print 'Successful rerun!!!', file_rerun, ' moved to Codeml_outputs directory'
 				print '----------------------------------------------------------------'
 				break
 				
@@ -121,8 +120,8 @@ for aname in reruns:
 				print '---------------------------------------'
 				
 			else: 
-				os.system('mv ' + file_rerun + '_modApos.out ./thereruns')
-				print 'Success!!!', file_rerun, ' moved to thereruns directory'
+				os.system('mv ' + file_rerun + '_modApos.out ./Codeml_outputs')
+				print 'Successful reruns!!!', file_rerun, ' moved to Codeml_outputs directory'
 				print '----------------------------------------------------------------'
 				break
 				

@@ -10,32 +10,32 @@ from Bio.Phylo.PAML import codeml
 def ModelA_nullcodeml(element, kappastart):
 	cml = codeml.Codeml()
 	cml.alignment = '../For_codeml/phylipforpaml/' +  element + '.phylip'
-	cml.tree = 'transcriptometree_root.phy'
+	cml.tree = 'transcriptometree_noroot.tree' #Note: using an unrooted tree
 	cml.out_file = element + '_modAnull.out'
 	cml.working_dir = './'
 
 	cml.set_options(verbose = 1, 
-	runmode = 0,
-	seqtype = 1,
-	CodonFreq = 2,
-	clock = 0,
-	aaDist = 0,
-	model = 2, 
-	NSsites = [2],
-	icode = 0,
-	Mgene = 0,
-	fix_kappa = 0, # kappa estimated
+	runmode = 0, # 0: user tree
+	seqtype = 1, # 1: codons
+	CodonFreq = 2, # 2: F3X4
+	clock = 0, # 0 if unrooted tree
+	aaDist = 0, # 0: equal
+	model = 2, # 2:2 or more dN/dS ratios for branches
+	NSsites = [2], # 2: Positive selection
+	icode = 0, # 0: standard genetic code
+	Mgene = 0, # 0: rates
+	fix_kappa = 0, # 0: kappa estimated
 	kappa = kappastart, # initial kappa
-	fix_omega = 1,# fix omega
-	omega = 1, # omega fixed to 1
-	cleandata = 1)
+	fix_omega = 1,# 1: fix omega
+	omega = 1, # 1: omega fixed to 1
+	cleandata = 1) #1: yes, remove sites with ambiguity data
 	
 	cml.run(verbose = True)
 	
 def ModelA_poscodeml(element, kappastart, omegastart):
 	cml = codeml.Codeml()
 	cml.alignment = '../For_codeml/phylipforpaml/' + element + '.phylip'
-	cml.tree = 'transcriptometree_root.phy'
+	cml.tree = 'transcriptometree_noroot.tree'
 	cml.out_file = element + '_modApos.out'
 	cml.working_dir = './'
 
@@ -43,19 +43,18 @@ def ModelA_poscodeml(element, kappastart, omegastart):
 	runmode = 0,
 	seqtype = 1,
 	CodonFreq = 2,
-	clock = 0,
+	clock = 0, # 0 if unrooted
 	aaDist = 0,
 	model = 2, 
 	NSsites = [2],
 	icode = 0,
 	Mgene = 0,
-	fix_kappa = 0, # kappa estimated
+	fix_kappa = 0, # 0: kappa estimated
 	kappa = kappastart, # initial kappa
-	fix_omega = 0,# omega estimated
+	fix_omega = 0,# 0: omega estimated
 	omega = omegastart, # initial omega
 	cleandata = 1)
 
-	cml.set_options(cleandata = 1)
 	cml.run(verbose = True)
 	
 # Input files
@@ -68,35 +67,35 @@ omega_starts = [0, 0.5, 1, 3.5, 15] # range of start values for omega
 #omega_starts = [0,0.5] # use to test code
 
 # Run codeml (null model) with different starting values
-for aname in alignmentfiles: 
-	if '.phylip' in aname:
-		file_null = aname.split('.')[0]
-		print '-----------------------------------------------------'
-		print 'File to run null model on: ', file_null
-		print '-----------------------------------------------------'
+#for aname in alignmentfiles: 
+#	if '.phylip' in aname:
+#		file_null = aname.split('.')[0]
+#		print '-----------------------------------------------------'
+#		print 'File to run null model on: ', file_null
+#		print '-----------------------------------------------------'
 		
-		notconverged = True #set this to initial state for while loop
-		counter = 0 # to move consecutively through the values
+#		notconverged = True #set this to initial state for while loop
+#		counter = 0 # to move consecutively through the values
 		
-		while notconverged:
-			if counter > 4:
-				print 'Ok, all start values have been tried.'
-				print 'If you see this message, then the file has still NOT converged. Sigh...'
-				break
+#		while notconverged:
+#			if counter > 4:
+#				print 'Ok, all start values have been tried.'
+#				print 'If you see this message, then the file has still NOT converged. Sigh...'
+#				break
 				
-			ModelA_nullcodeml(file_null, kappa_starts[counter])
+#			ModelA_nullcodeml(file_null, kappa_starts[counter])
 	
-			if 'check convergence..' in open(file_null + '_modAnull.out').read(): 
-				print 'Nope, try again...', file_null
-				print '---------------------------------------'
+#			if 'check convergence..' in open(file_null + '_modAnull.out').read(): 
+#				print 'Nope, try again...', file_null
+#				print '---------------------------------------'
 				
-			else: 
-				os.system('mv ' + file_null + '_modAnull.out ./Codeml_outputs')
-				print 'Success!!!', file_null, ' moved to Codeml_outputs directory'
-				print '----------------------------------------------------------------'
-				break
+#			else: 
+#				os.system('mv ' + file_null + '_modAnull.out ./Codeml_outputs')
+#				print 'Success!!!', file_null, ' moved to Codeml_outputs directory'
+#				print '----------------------------------------------------------------'
+#				break
 				
-			counter += 1
+#			counter += 1
 		
 # Run codeml (positive selection model) with different starting values			
 for aname in alignmentfiles:
