@@ -2,11 +2,12 @@
 # Marisa Lim (c)2015
 
 # set working directory
-wd = "C:/Users/mcwlim/Desktop/StonyBrook/GrahamLab/Dissertation idea materials/THESIS PROJECTS/Hummingbird_Genomics/Transcriptome pipeline files/"
+wd = "C:/Users/mcwlim/Dropbox/Marisacompfiles/Transcriptome files/"
 setwd(wd)
 
 # Load contig length input data
 contigA <- read.table("extractidsA.txt")
+contigA_redo <- read.table("extract_contiglen_A.txt")
 contigB <- read.table("extractidsB.txt")
 contigC <- read.table("extractidsC.txt")
 contigD <- read.table("extractidsD.txt")
@@ -27,6 +28,7 @@ jpeg("CGML001A-L_contigdistr.jpg", height=10, width=15, units="in", res=600)
 par(mfrow=c(3,4))
 hist(as.numeric(contigA$V1), breaks=50, col="tomato", xlab="Contig length", 
      main="CGML001A")
+hist(as.numeric(contigA_redo$V1), breaks=50, col="red", xlab="Contig length", main='CGML001A_redo')
 hist(as.numeric(contigB$V1), breaks=50, col="indianred", xlab="Contig length", 
      main="CGML001B*")
 hist(as.numeric(contigC$V1), breaks=50, col="violetred", xlab="Contig length", 
