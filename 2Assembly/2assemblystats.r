@@ -11,6 +11,7 @@ contigA_redo <- read.table("extract_contiglen_A.txt")
 contigB <- read.table("extractidsB.txt")
 contigB_redo <- read.table("extract_contiglen_B.txt")
 contigC <- read.table("extractidsC.txt")
+contigC_redo <- read.table("extract_contiglen_C.txt")
 contigD <- read.table("extractidsD.txt")
 contigE <- read.table("extractidsE.txt")
 contigF <- read.table("extractidsF.txt")
@@ -35,6 +36,7 @@ hist(as.numeric(contigB$V1), breaks=50, col="indianred", xlab="Contig length",
 hist(as.numeric(contigB_redo$V1), breaks=50, col="red", xlab="Contig length", main='CGML001B_redo')
 hist(as.numeric(contigC$V1), breaks=50, col="violetred", xlab="Contig length", 
      main="CGML001C")
+hist(as.numeric(contigC_redo$V1), breaks=50, col="red", xlab="Contig length", main='CGML001C_redo')
 hist(as.numeric(contigD$V1), breaks=50, col="salmon2", xlab="Contig length", 
      main="CGML001D")
 hist(as.numeric(contigE$V1), breaks=50, col="orange", xlab="Contig length", 
