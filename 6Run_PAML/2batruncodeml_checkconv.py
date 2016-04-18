@@ -3,14 +3,16 @@
 # goal here is to combine the nullbatruncodeml.py, postbatruncodeml.py, and rerun_codeml.py scripts
 # it will run codeml for both models with different starting values, checking for convergence, and grab lnL values
 
+# NOTE: this is for nuclear dna sequences
+
 # import modules
 import os
 from Bio.Phylo.PAML import codeml
 
 def ModelA_nullcodeml(element, kappastart):
 	cml = codeml.Codeml()
-	cml.alignment = '../For_codeml/phylipforpaml/' +  element + '.phylip'
-	cml.tree = 'transcriptometree_noroot.tree' #Note: using an unrooted tree
+	cml.alignment = '/crucible/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/' +  element + '.phylip'
+	cml.tree = '/crucible/bi4iflp/mlim/Run_codeml_nudna/transcriptometree_noroot.tree' #Note: using an unrooted tree
 	cml.out_file = element + '_modAnull.out'
 	cml.working_dir = './'
 
@@ -34,8 +36,8 @@ def ModelA_nullcodeml(element, kappastart):
 	
 def ModelA_poscodeml(element, kappastart, omegastart):
 	cml = codeml.Codeml()
-	cml.alignment = '../For_codeml/phylipforpaml/' + element + '.phylip'
-	cml.tree = 'transcriptometree_noroot.tree'
+	cml.alignment = '/crucible/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/' +  element + '.phylip'
+	cml.tree = '/crucible/bi4iflp/mlim/Run_codeml_nudna/transcriptometree_noroot.tree' #Note: using an unrooted tree
 	cml.out_file = element + '_modApos.out'
 	cml.working_dir = './'
 
@@ -58,7 +60,7 @@ def ModelA_poscodeml(element, kappastart, omegastart):
 	cml.run(verbose = True)
 	
 # Input files
-alignmentfiles = [f for f in os.listdir('../For_codeml/phylipforpaml/')]
+alignmentfiles = [f for f in os.listdir('/crucible/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/')]
 
 # Choose start values
 kappa_starts = [0, 0.5, 1, 3.5, 15] # range of start values for kappa
@@ -67,35 +69,35 @@ omega_starts = [0, 0.5, 1, 3.5, 15] # range of start values for omega
 #omega_starts = [0,0.5] # use to test code
 
 # Run codeml (null model) with different starting values
-#for aname in alignmentfiles: 
-#	if '.phylip' in aname:
-#		file_null = aname.split('.')[0]
-#		print '-----------------------------------------------------'
-#		print 'File to run null model on: ', file_null
-#		print '-----------------------------------------------------'
+for aname in alignmentfiles: 
+	if '.phylip' in aname:
+		file_null = aname.split('.')[0]
+		print '-----------------------------------------------------'
+		print 'File to run null model on: ', file_null
+		print '-----------------------------------------------------'
 		
-#		notconverged = True #set this to initial state for while loop
-#		counter = 0 # to move consecutively through the values
+		notconverged = True #set this to initial state for while loop
+		counter = 0 # to move consecutively through the values
 		
-#		while notconverged:
-#			if counter > 4:
-#				print 'Ok, all start values have been tried.'
-#				print 'If you see this message, then the file has still NOT converged. Sigh...'
-#				break
+		while notconverged:
+			if counter > 4:
+				print 'Ok, all start values have been tried.'
+				print 'If you see this message, then the file has still NOT converged. Sigh...'
+				break
 				
-#			ModelA_nullcodeml(file_null, kappa_starts[counter])
+			ModelA_nullcodeml(file_null, kappa_starts[counter])
 	
-#			if 'check convergence..' in open(file_null + '_modAnull.out').read(): 
-#				print 'Nope, try again...', file_null
-#				print '---------------------------------------'
+			if 'check convergence..' in open(file_null + '_modAnull.out').read(): 
+				print 'Nope, try again...', file_null
+				print '---------------------------------------'
 				
-#			else: 
-#				os.system('mv ' + file_null + '_modAnull.out ./Codeml_outputs')
-#				print 'Success!!!', file_null, ' moved to Codeml_outputs directory'
-#				print '----------------------------------------------------------------'
-#				break
+			else: 
+				os.system('mv ' + file_null + '_modAnull.out /crucible/bi4iflp/mlim/Run_codeml_nudna/nudna_codeml_outputs')
+				print 'Success!!!', file_null, ' moved to nudna_codeml_outputs directory'
+				print '----------------------------------------------------------------'
+				break
 				
-#			counter += 1
+			counter += 1
 		
 # Run codeml (positive selection model) with different starting values			
 for aname in alignmentfiles:
@@ -121,18 +123,16 @@ for aname in alignmentfiles:
 				print '---------------------------------------'
 				
 			else: 
-				os.system('mv ' + file_pos + '_modApos.out ./Codeml_outputs')
-				print 'Success!!!', file_pos, ' moved to Codeml_outputs directory'
+				os.system('mv ' + file_pos + '_modApos.out /crucible/bi4iflp/mlim/Run_codeml_nudna/nudna_codeml_outputs')
+				print 'Success!!!', file_pos, ' moved to nudna_codeml_outputs directory'
 				print '----------------------------------------------------------------'
 				break
 				
 			counter += 1
 
 # grab the lnL outputs to check if results significant, the results file will be in the Run_codeml directory (or whichever directory this script is in)
-os.system('grep lnL ./Codeml_outputs/*null.out | awk \'{print $1"\t"$5}\' > lnL_null.txt')
-os.system('grep lnL ./Codeml_outputs/*pos.out | awk \'{print $1"\t"$5}\' > lnL_pos.txt')
-
-
+os.system('grep lnL /crucible/bi4iflp/mlim/Run_codeml_nudna/nudna_codeml_outputs/*modAnull.out | awk \'{print $1"\t"$5}\' > /crucible/bi4iflp/mlim/Run_codeml_nudna/nu_lnL_null.txt')
+os.system('grep lnL /crucible/bi4iflp/mlim/Run_codeml_nudna/nudna_codeml_outputs/*pos.out | awk \'{print $1"\t"$5}\' > /crucible/bi4iflp/mlim/Run_codeml_nudna/nu_lnL_pos.txt')
 
 				
 		

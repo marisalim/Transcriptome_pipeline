@@ -3,7 +3,7 @@
 # goal here is to combine the nullbatruncodeml.py, postbatruncodeml.py, and rerun_codeml.py scripts
 # it will run codeml for both models with different starting values, checking for convergence, and grab lnL values
 
-# NOTE: this is for mitochondrial dna sequences
+# NOTE: this is for nuclear dna sequences
 
 # import modules
 import os
@@ -13,8 +13,8 @@ def M2arelcodeml(element, kappastart, omegastart):
 	ctl_file = open('codemlM2arel.ctl', 'w')
 	
 	ctl_file.write(
-	'seqfile = /crucible/bi4iflp/mlim/Run_codeml_mtdna/mtDNA_phylipfiles/' +  element + '.phylip' + '\n' +
-	'treefile = /crucible/bi4iflp/mlim/Run_codeml_mtdna/transcriptometree_noroot.tree' + '\n' +
+	'seqfile = /crucible/bi4iflp/mlim/Run_codeml_nudna/phylipfiles/' +  element + '.phylip' + '\n' +
+	'treefile = /crucible/bi4iflp/mlim/Run_codeml_nudna/transcriptometree_noroot.tree' + '\n' +
 	'outfile = ' + element + '_M2arelnull.out' + '\n' +
 	'verbose = 1' + '\n' +
 	'runmode = 0' + '\n' +
@@ -24,7 +24,7 @@ def M2arelcodeml(element, kappastart, omegastart):
 	'aaDist = 0' + '\n' +
 	'model = 0' + '\n' +
 	'NSsites = 22' + '\n' +
-	'icode = 1' + '\n' + #mammalian mtDNA code
+	'icode = 0' + '\n' + #standard genetic code
 	'Mgene = 0' + '\n' +
 	'fix_kappa = 0' + '\n' + # kappa estimated
 	'kappa = ' + str(kappastart) + '\n' + 
@@ -36,8 +36,8 @@ def M2arelcodeml(element, kappastart, omegastart):
 	
 def cladeCcodeml(element, kappastart, omegastart):
 	cml = codeml.Codeml()
-	cml.alignment = '/crucible/bi4iflp/mlim/Run_codeml_mtdna/mtDNA_phylipfiles/' + element + '.phylip'
-	cml.tree = '/crucible/bi4iflp/mlim/Run_codeml_mtdna/transcriptometree_noroot.tree'
+	cml.alignment = '/crucible/bi4iflp/mlim/Run_codeml_nudna/phylipfiles/' + element + '.phylip'
+	cml.tree = '/crucible/bi4iflp/mlim/Run_codeml_nudna/transcriptometree_noroot.tree'
 	cml.out_file = element + '_cladeC.out'
 	cml.working_dir = './'
 
@@ -49,7 +49,7 @@ def cladeCcodeml(element, kappastart, omegastart):
 	aaDist = 0,
 	model = 3, 
 	NSsites = [2],
-	icode = 1, #mammalian mtDNA code
+	icode = 0, #standard genetic code
 	Mgene = 0,
 	fix_kappa = 0, # kappa estimated
 	kappa = kappastart, 
@@ -60,7 +60,7 @@ def cladeCcodeml(element, kappastart, omegastart):
 	cml.run(verbose = True)
 
 # Input files
-alignmentfiles = [f for f in os.listdir('/crucible/bi4iflp/mlim/Run_codeml_mtdna/mtDNA_phylipfiles/')]
+alignmentfiles = [f for f in os.listdir('/crucible/bi4iflp/mlim/Run_codeml_nudna/phylipfiles/')]
 
 # Choose start values
 kappa_starts = [0, 0.5, 1, 3.5, 15] # range of start values for kappa
@@ -94,8 +94,8 @@ for aname in alignmentfiles:
 				print '---------------------------------------'
 				
 			else: 
-				os.system('mv ' + file_M2arel + '_M2arelnull.out /crucible/bi4iflp/mlim/Run_codeml_mtdna/mtDNA_codeml_outputs')
-				print 'Success!!!', file_M2arel, ' moved to mtDNA_codeml_outputs directory'
+				os.system('mv ' + file_M2arel + '_M2arelnull.out /crucible/bi4iflp/mlim/Run_codeml_nudna/nudna_codeml_outputs')
+				print 'Success!!!', file_M2arel, ' moved to nudna_codeml_outputs directory'
 				print '----------------------------------------------------------------'
 				break
 				
@@ -125,8 +125,8 @@ for aname in alignmentfiles:
 				print '---------------------------------------'
 				
 			else: 
-				os.system('mv ' + file_cladeC + '_cladeC.out /crucible/bi4iflp/mlim/Run_codeml_mtdna/mtDNA_codeml_outputs')
-				print 'Success!!!', file_cladeC, ' moved to mtDNA_codeml_outputs directory'
+				os.system('mv ' + file_cladeC + '_cladeC.out /crucible/bi4iflp/mlim/Run_codeml_nudna/nudna_codeml_outputs')
+				print 'Success!!!', file_cladeC, ' moved to nudna_codeml_outputs directory'
 				print '----------------------------------------------------------------'
 				break
 				
@@ -135,5 +135,6 @@ for aname in alignmentfiles:
 # grab the lnL outputs to check if results significant, the results file will be in the Run_codeml_mtdna directory (or whichever directory this script is in)
 ## this runs, but saves file to home folder home/mlim
 ## or you can just run this separately in python after codeml analysis finishes
-os.system('grep lnL /crucible/bi4iflp/mlim/Run_codeml_mtdna/mtDNA_codeml_outputs/*_M2arelnull.out | awk \'{print $1"\t"$5}\' > /crucible/bi4iflp/mlim/Run_codeml_mtdna/lnL_M2a_relnull.txt')
-os.system('grep lnL /crucible/bi4iflp/mlim/Run_codeml_mtdna/mtDNA_codeml_outputs/*_cladeC.out | awk \'{print $1"\t"$5}\' > /crucible/bi4iflp/mlim/Run_codeml_mtdna/lnL_cladeC.txt')
+os.system('grep lnL /crucible/bi4iflp/mlim/Run_codeml_nudna/nudna_codeml_outputs/*_M2arelnull.out | awk \'{print $1"\t"$5}\' > /crucible/bi4iflp/mlim/Run_codeml_nudna/nu_lnL_M2a_relnull.txt')
+os.system('grep lnL /crucible/bi4iflp/mlim/Run_codeml_nudna/nudna_codeml_outputs/*_cladeC.out | awk \'{print $1"\t"$5}\' > /crucible/bi4iflp/mlim/Run_codeml_nudna/nu_lnL_cladeC.txt')
+
