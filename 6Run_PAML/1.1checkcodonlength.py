@@ -21,15 +21,18 @@ for myfile in thefiles:
 #		print float(seqlen) % 3 != 0
 #		print float(seqlen) % 3
 	
+		out1 = open('fix_codons.txt', 'a')
 		if float(seqlen) % 3 == 0:
 			continue
 	
 		else:
-			out1 = open('fix_codons.txt', 'a')
+			print 'Oops, there are alignments that are NOT multiples of 3. Check fix_codons.txt file.'
+#			out1 = open('fix_codons.txt', 'a')
 			out1.write(mygene + '\n')
+		out1.write("done")
 out1.close() #i think this part doesn't work if there are no sequences in out1 
 
-print "All done!"
+print 'All done!'
 
 
 
