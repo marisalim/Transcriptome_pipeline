@@ -31,7 +31,7 @@ dim(testmod)
 replacebreak <- gsub(pattern="/", replacement=" ", x=nullmod$Gene)
 splitbreak <- strsplit(replacebreak, split=" ")
 genename1 <- sapply(splitbreak, function(x){
-  paste(x[[3]])
+  paste(x[[7]])
 })
 head(genename1)
 replacebreak2 <- gsub(pattern="_", replacement=" ", x=genename1)
@@ -44,6 +44,7 @@ head(genename)
 # merge the information for both models
 LRTdat <- data.frame("Gene"=genename, "Gene_nullmod"=nullmod$Gene, "lnL_nullmod"=nullmod$lnL, 
                      "Gene_testmod"=testmod$Gene, "lnL_testmod"=testmod$lnL)
+head(LRTdat)
 
 # ----------------- calculate LRT -----------------
 LRTdat$LRT <- 2*(LRTdat$lnL_testmod - LRTdat$lnL_nullmod)
