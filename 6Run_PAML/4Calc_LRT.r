@@ -16,6 +16,32 @@ MLwd = "C:/Users/mcwlim/Dropbox/Marisacompfiles/Transcriptome files"
 setwd(MLwd)
 
 # ----------------- Read in lnL values for each model -----------------
+# nuclear dna files
+nu_nullmod <- read.table("nu_lnL_null.txt")
+nu_testmod <- read.table("nu_lnL_pos.txt")
+head(nu_nullmod)
+head(nu_testmod)
+# give column names
+colnames(nu_nullmod) <- c("Gene", "lnL")
+colnames(nu_testmod) <- c("Gene", "lnL")
+# check dimensions
+dim(nu_nullmod)
+dim(nu_testmod)
+# get gene name
+nu_replacebreak <- gsub(pattern="/", replacement=" ", x=nu_nullmod$Gene)
+nu_splitbreak <- strsplit(nu_replacebreak, split=" ")
+nu_genename1 <- sapply(nu_splitbreak, function(x){
+  paste(x[[7]])
+})
+head(nu_genename1)
+nu_replacebreak2 <- gsub(pattern="_", replacement=" ", x=nu_genename1)
+nu_splitbreak2 <- strsplit(nu_replacebreak2, split=" ")
+nu_genename <- sapply(nu_splitbreak2, function(x){
+  paste(x[[1]])
+})
+head(nu_genename)
+
+# mitochondrial dna files
 nullmod <- read.table("lnL_null.txt")
 testmod <- read.table("lnL_pos.txt")
 head(nullmod)
@@ -26,7 +52,6 @@ colnames(testmod) <- c("Gene", "lnL")
 # check dimensions
 dim(nullmod)
 dim(testmod)
-
 # get gene name
 replacebreak <- gsub(pattern="/", replacement=" ", x=nullmod$Gene)
 splitbreak <- strsplit(replacebreak, split=" ")
@@ -41,12 +66,21 @@ genename <- sapply(splitbreak2, function(x){
 })
 head(genename)
 
-# merge the information for both models
-LRTdat <- data.frame("Gene"=genename, "Gene_nullmod"=nullmod$Gene, "lnL_nullmod"=nullmod$lnL, 
+# merge the information for both models 
+LRTdat_nu <- data.frame("Gene"=nu_genename, "Gene_nullmod"=nu_nullmod$Gene, "lnL_nullmod"=nu_nullmod$lnL, 
+                          "Gene_testmod"=nu_testmod$Gene, "lnL_testmod"=nu_testmod$lnL)
+head(LRTdat_nu)
+LRTdat_mito <- data.frame("Gene"=genename, "Gene_nullmod"=nullmod$Gene, "lnL_nullmod"=nullmod$lnL, 
                      "Gene_testmod"=testmod$Gene, "lnL_testmod"=testmod$lnL)
+head(LRTdat_mito)
+
+# combine nuclear and mito datasets
+LRTdat <- rbind(LRTdat_nu, LRTdat_mito)
+dim(LRTdat)
 head(LRTdat)
 
 # ----------------- calculate LRT -----------------
+# Want values > 0, ignore any < 0
 LRTdat$LRT <- 2*(LRTdat$lnL_testmod - LRTdat$lnL_nullmod)
 head(LRTdat)
 
@@ -60,12 +94,18 @@ abline(h=10.83, lty=4, lwd=2, col="seagreen3")
 dev.off()
 
 # Which columns have significant LRT? (df = 1)
-dim(LRTdat[LRTdat$LRT >= 3.84,]) # p=0.05
-dim(LRTdat[LRTdat$LRT >= 6.64,]) # p=0.01
-dim(LRTdat[LRTdat$LRT >= 10.83,]) # p=0.001
+p05dat <- LRTdat[LRTdat$LRT >= 3.84,] # p=0.05
+p01dat <- LRTdat[LRTdat$LRT >= 6.64,] # p=0.01
+p001dat <- LRTdat[LRTdat$LRT >= 10.83,] # p=0.001
+dim(p05dat)
+dim(p01dat)
+dim(p001dat)
 
 # ----------------- search GO terms/info -----------------
-ensembl = useMart("ENSEMBL_MART_ENSEMBL", dataset="tguttata_gene_ensembl", host="www.ensembl.org")
+ensembl = useMart(biomart="ENSEMBL_MART_ENSEMBL", dataset="tguttata_gene_ensembl", host="dec2015.archive.ensembl.org")
+# usual host not working today...25April16, the above host is an archived
+#ensembl = useMart(biomart="ENSEMBL_MART_ENSEMBL", dataset="tguttata_gene_ensembl", host='www.ensembl.org')            
+                    
 filters = listFilters(ensembl)
 attributes = listAttributes(ensembl)
 
@@ -91,6 +131,8 @@ LRTdat$signif_grp_05 <- ifelse(LRTdat$LRT > 3.84, "signif", "nonsig")
 LRTdat$signif_grp_01 <- ifelse(LRTdat$LRT > 6.64, "signif", "nonsig")
 LRTdat$signif_grp_001 <- ifelse(LRTdat$LRT > 10.83, "signif", "nonsig")
 head(LRTdat)
+
+checkLRTdat <- LRTdat[LRTdat$signif_grp_001 == "signif",]
 
 MFmerge <- merge(x=alldata_MF, y=LRTdat, by.x="ensembl_peptide_id", by.y="Gene")
 dim(MFmerge)
@@ -175,6 +217,7 @@ ordihull(CC_NMDS, groups=CCdat$signif_grp_05, draw="polygon", label=F, show.grou
 ordihull(CC_NMDS, groups=CCdat$signif_grp_05, draw="polygon", label=F, show.groups="signif", col="red", lty=2)
 dev.off()
 
+par(mfrow=c(1,1))
 # individual plots for p=0.05
 jpeg("0.05MF_NMDS.jpg", height=10, width=10, units="in", res=500)
 ordiplot(MF_NMDS,type="n", main="MF, p=0.05")
@@ -211,10 +254,12 @@ p0.001 <- LRTdat[LRTdat$LRT >= 10.83,]
 # read in list of genes not significant in codeml (at any level)
 nonsig_genes <- LRTdat[LRTdat$LRT < 3.84,]
 
-p0.05_go <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol'), filters='ensembl_peptide_id', values=p0.05$Gene, mart=ensembl)
+p0.05_go_names <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol'), filters='ensembl_peptide_id', values=p0.05$Gene, mart=ensembl)
+dim(p0.05_go_names)
+p0.05_go <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol', 'name_1006', 'namespace_1003'), filters='ensembl_peptide_id', values=p0.05$Gene, mart=ensembl)
 head(p0.05_go)
 dim(p0.05_go)
-p0.05_BP <- p0.05_go2[p0.05_go2$namespace_1003 == "biological_process",]
+p0.05_BP <- p0.05_go[p0.05_go$namespace_1003 == "biological_process",]
 head(p0.05_BP)
 dat_tab <- table(p0.05_BP$ensembl_peptide_id, p0.05_BP$name_1006) 
 dat_tab[1:5, 1:5] 
