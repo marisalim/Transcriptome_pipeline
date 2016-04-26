@@ -10,6 +10,8 @@ library("GO.db")
 library(vegan)
 library(dplyr)
 library(tidyr)
+library(ggplot2)
+library(ggrepel)
 
 # set working directory
 MLwd = "C:/Users/mcwlim/Dropbox/Marisacompfiles/Transcriptome files"
@@ -85,13 +87,45 @@ LRTdat$LRT <- 2*(LRTdat$lnL_testmod - LRTdat$lnL_nullmod)
 head(LRTdat)
 
 # plot LRT and significance cutoffs
-rownums <- c(1:nrow(LRTdat))
-jpeg("LRTplot.jpg", height=6, width=4, units="in", res=500)
-plot(rownums, LRTdat$LRT, pch=20, cex=1.5, xlab="Gene ID", ylab="LRT", ylim=c(-150,100))
-abline(h=3.84, lwd=2, col="tomato")
-abline(h=6.64, lty=2, lwd=2, col="deepskyblue2")
-abline(h=10.83, lty=4, lwd=2, col="seagreen3")
-dev.off()
+LRTdat$rownums <- c(1:nrow(LRTdat))
+
+# until reruns done, remove these rows (just put dummy values in them to keep the dimensions correct)
+LRTdat <- LRTdat[-c(107,334, 885),]
+
+# add signif level identifiers
+signif_lev <- c()
+for(i in 1:nrow(LRTdat)){
+  checkthis <- LRTdat$LRT[i]
+  
+  if(checkthis > 10.83){
+    signif_lev[i] <- 'signif001'
+  } else if(checkthis > 6.64){
+    signif_lev[i] <- 'signif01'
+  } else if(checkthis > 3.84){
+    signif_lev[i] <- 'signif05'
+  } else{
+    signif_lev[i] <- 'nonsig'
+  }
+}
+signif_lev
+
+LRTdat$Significance_level <- signif_lev
+names(LRTdat)
+
+ggplot(LRTdat, aes(x=rownums, y=LRT, color=Significance_level)) + 
+  geom_point(size=3, alpha=0.5) + 
+  theme_bw() + xlab("Index") + ylab("Likelihood ratio test value")
+ggsave("LRTplot.jpg", height=10, width=12, units="in", dpi=500)
+
+LRTdat2 <- LRTdat[LRTdat$LRT > 3.84,]
+dim(LRTdat2)
+ggplot(LRTdat2, aes(x=rownums, y=LRT)) + 
+  geom_point(size=5, color='grey') + 
+  geom_label_repel(aes(label=Gene, fill=factor(Significance_level)), 
+                  nudge_x=1, nudge_y=1, fontface='bold', color='white',
+                  box.padding=unit(0.25, 'lines')) +
+  theme_bw() + xlab("Index") + ylab("Likelihood ratio test value")
+ggsave("LRTplot_signifgenes.jpg", height=10, width=12, units="in", dpi=500)
 
 # Which columns have significant LRT? (df = 1)
 p05dat <- LRTdat[LRTdat$LRT >= 3.84,] # p=0.05
