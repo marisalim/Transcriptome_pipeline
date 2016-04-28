@@ -89,9 +89,6 @@ head(LRTdat)
 # plot LRT and significance cutoffs
 LRTdat$rownums <- c(1:nrow(LRTdat))
 
-# until reruns done, remove these rows (just put dummy values in them to keep the dimensions correct)
-LRTdat <- LRTdat[-c(107,334, 885),]
-
 # add signif level identifiers
 signif_lev <- c()
 for(i in 1:nrow(LRTdat)){
@@ -113,7 +110,7 @@ LRTdat$Significance_level <- signif_lev
 names(LRTdat)
 
 ggplot(LRTdat, aes(x=rownums, y=LRT, color=Significance_level)) + 
-  geom_point(size=3, alpha=0.5) + 
+  geom_point(size=3, alpha=0.6) + 
   theme_bw() + xlab("Index") + ylab("Likelihood ratio test value")
 ggsave("LRTplot.jpg", height=10, width=12, units="in", dpi=500)
 
