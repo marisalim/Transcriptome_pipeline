@@ -116,12 +116,18 @@ ggsave("LRTplot.jpg", height=10, width=12, units="in", dpi=500)
 
 LRTdat2 <- LRTdat[LRTdat$LRT > 3.84,]
 dim(LRTdat2)
+p0.05 <- LRTdat[LRTdat$LRT >= 3.84,]
+p0.05_go_names <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol'), filters='ensembl_peptide_id', values=p0.05$Gene, mart=ensembl)
+
+LRTdat2 <- merge(LRTdat2, p0.05_go_names, by='Gene')
+LRTdat2$hgnc_symbol[17] <- 'COXI'
 ggplot(LRTdat2, aes(x=rownums, y=LRT)) + 
   geom_point(size=5, color='grey') + 
-  geom_label_repel(aes(label=Gene, fill=factor(Significance_level)), 
+  geom_label_repel(aes(label=hgnc_symbol, fill=factor(Significance_level)), 
                   nudge_x=1, nudge_y=1, fontface='bold', color='white',
                   box.padding=unit(0.25, 'lines')) +
-  theme_bw() + xlab("Index") + ylab("Likelihood ratio test value")
+  theme_bw() + xlab("Index") + ylab("Likelihood ratio test value") +
+  theme(text=element_text(size=20), legend.position='bottom')
 ggsave("LRTplot_signifgenes.jpg", height=10, width=12, units="in", dpi=500)
 
 # Which columns have significant LRT? (df = 1)
