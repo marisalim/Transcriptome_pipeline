@@ -117,10 +117,18 @@ ggsave("LRTplot.jpg", height=10, width=12, units="in", dpi=500)
 LRTdat2 <- LRTdat[LRTdat$LRT > 3.84,]
 dim(LRTdat2)
 p0.05 <- LRTdat[LRTdat$LRT >= 3.84,]
-p0.05_go_names <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol'), filters='ensembl_peptide_id', values=p0.05$Gene, mart=ensembl)
 
-LRTdat2 <- merge(LRTdat2, p0.05_go_names, by='Gene')
+# if usual host not working today...25April16, the above host is an archived
+#ensembl = useMart(biomart="ENSEMBL_MART_ENSEMBL", dataset="tguttata_gene_ensembl", host="dec2015.archive.ensembl.org")
+ensembl = useMart(biomart="ENSEMBL_MART_ENSEMBL", dataset="tguttata_gene_ensembl", host='www.ensembl.org')            
+
+p0.05_go_names <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol'), filters='ensembl_peptide_id', values=p0.05$Gene, mart=ensembl)
+LRTdat2 <- merge(x=LRTdat2, y=p0.05_go_names, by.x='Gene', by.y='ensembl_peptide_id')
 LRTdat2$hgnc_symbol[17] <- 'COXI'
+LRTdat2$hgnc_symbol
+# remove messed up LRT genes: Cactin, EEF2, RPS4X, MTX2, COX1
+LRTdat2 <- LRTdat2[-c(1:2, 7, 11, 17),]
+
 ggplot(LRTdat2, aes(x=rownums, y=LRT)) + 
   geom_point(size=5, color='grey') + 
   geom_label_repel(aes(label=hgnc_symbol, fill=factor(Significance_level)), 
@@ -138,16 +146,52 @@ dim(p05dat)
 dim(p01dat)
 dim(p001dat)
 
+p0.05_go_info <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol', 'name_1006','go_id', 'namespace_1003'), 
+                       filters='ensembl_peptide_id', values=LRTdat2$Gene, mart=ensembl)
+p0.05_go_info[p0.05_go_info$hgnc_symbol=='AGTRAP',]
+p0.05_go_info[p0.05_go_info$hgnc_symbol=='C1QBP',]
+p0.05_go_info[p0.05_go_info$hgnc_symbol=='PDIA3',]
+
+p0.05_go_info[p0.05_go_info$namespace_1003=='biological_process',]
+
+# check other datasets
+ensembl_hs = useMart(biomart="ENSEMBL_MART_ENSEMBL", dataset="hsapiens_gene_ensembl", host='www.ensembl.org')  
+ensembl_gg = useMart(biomart="ENSEMBL_MART_ENSEMBL", dataset="ggallus_gene_ensembl", host='www.ensembl.org')  
+
+p0.05_go_info_hs <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol', 'name_1006', 'namespace_1003'), 
+                       filters='hgnc_symbol', values=LRTdat2$hgnc_symbol, mart=ensembl_hs)
+p0.05_go_info_gg <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol', 'name_1006', 'namespace_1003'), 
+                          filters='hgnc_symbol', values=LRTdat2$hgnc_symbol, mart=ensembl_gg)
+p0.05_go_info_hs[p0.05_go_info_hs$hgnc_symbol=='AGTRAP',]
+p0.05_go_info_hs[p0.05_go_info_hs$hgnc_symbol=='C1QBP',]
+p0.05_go_info_hs[p0.05_go_info_hs$hgnc_symbol=='PDIA3',]
+p0.05_go_info_hs[p0.05_go_info_hs$hgnc_symbol=='CCNI',]
+p0.05_go_info_hs[p0.05_go_info_hs$hgnc_symbol=='MEA1',]
+p0.05_go_info_hs[p0.05_go_info_hs$hgnc_symbol=='DNAJB2',]
+p0.05_go_info_hs[p0.05_go_info_hs$hgnc_symbol=='MRPL42',]
+p0.05_go_info_hs[p0.05_go_info_hs$hgnc_symbol=='GOT1',]
+p0.05_go_info_hs[p0.05_go_info_hs$hgnc_symbol=='MRPS26',]
+p0.05_go_info_hs[p0.05_go_info_hs$hgnc_symbol=='LYRM2',]
+
+p0.05_go_info_gg[p0.05_go_info_gg$hgnc_symbol=='AGTRAP',]
+p0.05_go_info_gg[p0.05_go_info_gg$hgnc_symbol=='C1QBP',]
+p0.05_go_info_gg[p0.05_go_info_gg$hgnc_symbol=='PDIA3',]
+
+
+
 # ----------------- search GO terms/info -----------------
-ensembl = useMart(biomart="ENSEMBL_MART_ENSEMBL", dataset="tguttata_gene_ensembl", host="dec2015.archive.ensembl.org")
-# usual host not working today...25April16, the above host is an archived
-#ensembl = useMart(biomart="ENSEMBL_MART_ENSEMBL", dataset="tguttata_gene_ensembl", host='www.ensembl.org')            
-                    
 filters = listFilters(ensembl)
 attributes = listAttributes(ensembl)
 
 alldata_go <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol', 'name_1006', 'namespace_1003'), filters='ensembl_peptide_id', values=LRTdat$Gene, mart=ensembl)
 head(alldata_go) #i don't think HBB is here because it doesn't have a zebra finch ensembl id
+
+# let's try out a bar plot of name_1006, by LRT value, colored by namespace_1003
+LRTdat3 <- merge(x=LRTdat[,c(1,6,8)], y=alldata_go, by.x='Gene', by.y='ensembl_peptide_id')
+LRTdat3_MF <- LRTdat3[LRTdat3$namespace_1003 == 'molecular_function',]
+ggplot(LRTdat3_MF, aes(x=LRT, y=name_1006, col=Significance_level)) + 
+  geom_point() + theme_bw()
+
 alldata_BP <- alldata_go[alldata_go$namespace_1003 == "biological_process",] # not all ensembl ids have BP
 alldata_MF <- alldata_go[alldata_go$namespace_1003 == "molecular_function",] # not all ensembl ids have MF
 alldata_CC <- alldata_go[alldata_go$namespace_1003 == "cellular_component",] # not all ensembl ids have MF
@@ -190,9 +234,9 @@ CCdat[is.na(CCdat)] <- 0
 head(CCdat)
 
 # ----------------- Non-metric multidimensional scaling -----------------
-MF_NMDS = metaMDS(MFdat[12:ncol(MFdat)], k=2)
-BP_NMDS = metaMDS(BPdat[12:ncol(BPdat)], k=2)
-CC_NMDS = metaMDS(CCdat[12:ncol(CCdat)], k=2)
+MF_NMDS = metaMDS(MFdat[13:ncol(MFdat)], k=2)
+BP_NMDS = metaMDS(BPdat[13:ncol(BPdat)], k=2)
+CC_NMDS = metaMDS(CCdat[13:ncol(CCdat)], k=2)
 # not converging - doesn't matter if i add trymax=100, still doesn't converge 
 # test different distance metrics
 
