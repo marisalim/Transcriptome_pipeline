@@ -183,7 +183,14 @@ p0.05_go_info_gg[p0.05_go_info_gg$hgnc_symbol=='PDIA3',]
 filters = listFilters(ensembl)
 attributes = listAttributes(ensembl)
 
-alldata_go <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol', 'name_1006', 'namespace_1003'), filters='ensembl_peptide_id', values=LRTdat$Gene, mart=ensembl)
+alldata_genename <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol'), filters='ensembl_peptide_id', 
+                          values=LRTdat$Gene, mart=ensembl)
+head(alldata_genename)
+dim(alldata_genename) # not including Hbb and HBD
+write.csv(alldata_genename, 'Studygenes.csv')
+
+alldata_go <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol', 'name_1006', 'namespace_1003'), 
+                    filters='ensembl_peptide_id', values=LRTdat$Gene, mart=ensembl)
 head(alldata_go) #i don't think HBB is here because it doesn't have a zebra finch ensembl id
 
 # let's try out a bar plot of name_1006, by LRT value, colored by namespace_1003
