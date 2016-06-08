@@ -122,12 +122,29 @@ p0.05 <- LRTdat[LRTdat$LRT >= 3.84,]
 #ensembl = useMart(biomart="ENSEMBL_MART_ENSEMBL", dataset="tguttata_gene_ensembl", host="dec2015.archive.ensembl.org")
 ensembl = useMart(biomart="ENSEMBL_MART_ENSEMBL", dataset="tguttata_gene_ensembl", host='www.ensembl.org')            
 
-p0.05_go_names <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol'), filters='ensembl_peptide_id', values=p0.05$Gene, mart=ensembl)
+p0.05_go_names <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol'), 
+                        filters='ensembl_peptide_id', values=p0.05$Gene, mart=ensembl)
 LRTdat2 <- merge(x=LRTdat2, y=p0.05_go_names, by.x='Gene', by.y='ensembl_peptide_id')
 LRTdat2$hgnc_symbol[17] <- 'COXI'
 LRTdat2$hgnc_symbol
 # remove messed up LRT genes: Cactin, EEF2, RPS4X, MTX2, COX1
 LRTdat2 <- LRTdat2[-c(1:2, 7, 11, 17),]
+dim(LRTdat)
+dim(LRTdat2)
+
+# remove messed up LRT genes: Cactin, EEF2, RPS4X, MTX2, COX1 from LRTdat
+# ENSTGUP00000000167, ENSTGUP00000001031, ENSTGUP00000004932, ENSTGUP00000009260,ENSTGUP00000018304
+subsetLRT <- LRTdat[LRTdat$LRT >0,]
+subsetLRT2 <- subsetLRT[-c(16, 75, 305, 557, 941),]
+ggplot(subsetLRT2, aes(x=LRT)) + 
+  geom_histogram(bins=20, fill='blue', alpha=0.5) + 
+  scale_y_log10()+
+  # geom_density(fill='black', alpha=0.3) + 
+  theme_bw() + ylab('Log frequency') + 
+  geom_vline(xintercept=3.84, color='red', lwd=3)
+  # xlim(0,31) 
+ggsave('LRT_freqplot.jpg', height=6, width=6, units="in", dpi=500)
+
 
 ggplot(LRTdat2, aes(x=rownums, y=LRT)) + 
   geom_point(size=5, color='grey') + 
