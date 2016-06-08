@@ -208,12 +208,12 @@ ggplot(LRTdat3, aes(x=p.value)) +
   ggtitle("Uncorrected p-values")
 LRTdat3[LRTdat3$p.value < 0.05, ]
 
-# FDR test Benjamini & Hochberg (1995) 
+# FDR test Benjamini & Hochberg (1995) using full dataset (except the 5 messed up LRT/BEB ones)
 fdr_test <- p.adjust(p=LRTdat3$p.value, method='BH')
 fdr_df <- as.data.frame(fdr_test)
 ggplot(fdr_df, aes(x=fdr_test)) + 
   geom_histogram(bins=20, fill='blue', alpha=0.5) +
-  ggtitle('Corrected p-values')
+  ggtitle('Corrected p-values (q-values)')
 fdr_df[fdr_df$fdr_test < 0.5,]
 
 dim(fdr_df)
@@ -221,9 +221,25 @@ dim(LRTdat3)
 
 LRTdat4 <- cbind(LRTdat3, fdr_df)
 LRTdat4[LRTdat4$fdr_test < 0.2,]
-
 # last one standing is MEA1 ...
 
+# fdr on a subset of genes......
+# interesting blogpost on the subject: http://bayesiancook.blogspot.com/2014/04/fdr-and-single-gene-experiment.html
+thepvallist2 <- list()
+for(i in 1:nrow(LRTdat2)){
+  theLRT <- LRTdat2$LRT[i]
+  thepval <- pchisq(theLRT, df=1, lower.tail=FALSE)
+  thepvallist2[[i]] <- thepval
+}
+LRTdat5 <- data.frame(LRTdat2, "p-value"=unlist(thepvallist2))
+head(LRTdat5)
+fdr_test2 <- p.adjust(p=LRTdat5$p.value, method='BH')
+fdr_df2 <- as.data.frame(fdr_test2)
+ggplot(fdr_df2, aes(x=fdr_test2)) + 
+  geom_histogram(bins=20, fill='blue', alpha=0.5) +
+  ggtitle('Corrected p-values')
+LRTdat6 <- cbind(LRTdat5, fdr_df2)
+LRTdat6[,c(1,9:11)]
 
 # ----------------- search GO terms/info -----------------
 filters = listFilters(ensembl)
