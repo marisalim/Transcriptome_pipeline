@@ -134,17 +134,16 @@ dim(LRTdat2)
 
 # remove messed up LRT genes: Cactin, EEF2, RPS4X, MTX2, COX1 from LRTdat
 # ENSTGUP00000000167, ENSTGUP00000001031, ENSTGUP00000004932, ENSTGUP00000009260,ENSTGUP00000018304
-subsetLRT <- LRTdat[LRTdat$LRT >0,]
-subsetLRT2 <- subsetLRT[-c(16, 75, 305, 557, 941),]
+subsetLRT <- LRTdat[-c(16, 75, 305, 557, 941),]
+subsetLRT2 <- subsetLRT[subsetLRT$LRT > 0,]
+dim(subsetLRT)
+dim(subsetLRT2)
 ggplot(subsetLRT2, aes(x=LRT)) + 
-  geom_histogram(bins=20, fill='blue', alpha=0.5) + 
+  geom_histogram(bins=10, fill='blue', alpha=0.5) + 
   scale_y_log10()+
-  # geom_density(fill='black', alpha=0.3) + 
   theme_bw() + ylab('Log frequency') + 
   geom_vline(xintercept=3.84, color='red', lwd=3)
-  # xlim(0,31) 
 ggsave('LRT_freqplot.jpg', height=6, width=6, units="in", dpi=500)
-
 
 ggplot(LRTdat2, aes(x=rownums, y=LRT)) + 
   geom_point(size=5, color='grey') + 
@@ -194,6 +193,36 @@ p0.05_go_info_gg[p0.05_go_info_gg$hgnc_symbol=='AGTRAP',]
 p0.05_go_info_gg[p0.05_go_info_gg$hgnc_symbol=='C1QBP',]
 p0.05_go_info_gg[p0.05_go_info_gg$hgnc_symbol=='PDIA3',]
 
+# ----------------- calculate p-values and FDR ---------------
+thepvallist <- list()
+for(i in 1:nrow(subsetLRT)){
+  theLRT <- subsetLRT$LRT[i]
+  thepval <- pchisq(theLRT, df=1, lower.tail=FALSE)
+  thepvallist[[i]] <- thepval
+}
+LRTdat3 <- data.frame(subsetLRT, "p-value"=unlist(thepvallist))
+head(LRTdat3)
+
+ggplot(LRTdat3, aes(x=p.value)) + 
+  geom_histogram(bins=20, fill='blue', alpha=0.5) + 
+  ggtitle("Uncorrected p-values")
+LRTdat3[LRTdat3$p.value < 0.05, ]
+
+# FDR test Benjamini & Hochberg (1995) 
+fdr_test <- p.adjust(p=LRTdat3$p.value, method='BH')
+fdr_df <- as.data.frame(fdr_test)
+ggplot(fdr_df, aes(x=fdr_test)) + 
+  geom_histogram(bins=20, fill='blue', alpha=0.5) +
+  ggtitle('Corrected p-values')
+fdr_df[fdr_df$fdr_test < 0.5,]
+
+dim(fdr_df)
+dim(LRTdat3)
+
+LRTdat4 <- cbind(LRTdat3, fdr_df)
+LRTdat4[LRTdat4$fdr_test < 0.2,]
+
+# last one standing is MEA1 ...
 
 
 # ----------------- search GO terms/info -----------------
