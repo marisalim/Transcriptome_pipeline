@@ -396,6 +396,25 @@ ordihull(CC_NMDS, groups=CCdat$signif_grp_05, draw="polygon", label=T, show.grou
 #legend("topright", pch=c(16, 16), cex=c(1.5, 1.5), col=c("grey", "red"), c("Non-significant", "Significant"), bty="n")
 dev.off()
 
+# ----------------- Compare lit candidate vs. all my study genes list ------------
+mygenelist <- read.csv('Studygenes.csv', header=T)
+candlist <- read.csv('../Seq cap files/mycandgenes.csv', header=T)
+
+head(mygenelist)
+head(candlist)
+
+length(mygenelist$hgnc_symbol)
+length(candlist$Gene_name)
+
+notinmystudy <- setdiff(candlist$Gene_name, mygenelist$hgnc_symbol)
+length(notinmystudy)
+
+inmystudy <- intersect(mygenelist$hgnc_symbol, candlist$Gene_name)
+length(inmystudy)
+
+length(candlist$Gene_name) - length(notinmystudy) 
+
+
 # ----------------- GO terms for each signif level -----------------
 # new dataframes for each level of significance
 p0.05 <- LRTdat[LRTdat$LRT >= 3.84,]
