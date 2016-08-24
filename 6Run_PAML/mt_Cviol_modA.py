@@ -1,4 +1,4 @@
-# use transcriptometree_noroot_Acast.tree
+# use transcriptometree_noroot_Cviol.tree
 
 #!/usr/bin/env python
 
