@@ -93,8 +93,8 @@ for aname in alignmentfiles:
 				print '---------------------------------------'
 				
 			else: 
-				os.system('mv ' + file_null + '_Mphoe_modAnull.out /pylon1/bi4iflp/mlim/Run_codeml_mtdna/mtDNA_codemlout_Mphoe')
-				print 'Success!!!', file_null, ' moved to mtDNA_codemlout_Mphoe directory'
+				os.system('mv ' + file_null + '_Mphoe_modAnull.out /pylon1/bi4iflp/mlim/Run_codeml_mtdna/mtDNA_codemlout_Mphoe/Mphoeout')
+				print 'Success!!!', file_null, ' moved to Mphoeout directory'
 				print '----------------------------------------------------------------'
 				break
 				
@@ -124,8 +124,8 @@ for aname in alignmentfiles:
 				print '---------------------------------------'
 				
 			else: 
-				os.system('mv ' + file_pos + '_Mphoe_modApos.out /pylon1/bi4iflp/mlim/Run_codeml_mtdna/mtDNA_codemlout_Mphoe')
-				print 'Success!!!', file_pos, ' moved to mtDNA_codemlout_Mphoe directory'
+				os.system('mv ' + file_pos + '_Mphoe_modApos.out /pylon1/bi4iflp/mlim/Run_codeml_mtdna/mtDNA_codemlout_Mphoe/Mphoeout')
+				print 'Success!!!', file_pos, ' moved to Mphoeout directory'
 				print '----------------------------------------------------------------'
 				break
 				
@@ -134,5 +134,5 @@ for aname in alignmentfiles:
 # grab the lnL outputs to check if results significant, the results file will be in the Run_codeml_mtdna directory (or whichever directory this script is in)
 ## this runs, but saves file to home folder home/mlim
 ## or you can just run this separately in python after codeml analysis finishes
-os.system('grep lnL /pylon1/bi4iflp/mlim/Run_codeml_mtdna/mtDNA_codemlout_Mphoe/*modAnull.out | awk \'{print $1"\t"$5}\' > /pylon1/bi4iflp/mlim/Run_codeml_mtdna/Mphoe_lnL_null.txt')
-os.system('grep lnL /pylon1/bi4iflp/mlim/Run_codeml_mtdna/mtDNA_codemlout_Mphoe/*pos.out | awk \'{print $1"\t"$5}\' > /pylon1/bi4iflp/mlim/Run_codeml_mtdna/Mphoe_lnL_pos.txt')
+os.system('grep lnL /pylon1/bi4iflp/mlim/Run_codeml_mtdna/mtDNA_codemlout_Mphoe/Mphoeout/*modAnull.out | awk \'{print $1"\t"$5}\' > /pylon1/bi4iflp/mlim/Run_codeml_mtdna/Mphoe_lnL_null.txt')
+os.system('grep lnL /pylon1/bi4iflp/mlim/Run_codeml_mtdna/mtDNA_codemlout_Mphoe/Mphoeout/*pos.out | awk \'{print $1"\t"$5}\' > /pylon1/bi4iflp/mlim/Run_codeml_mtdna/Mphoe_lnL_pos.txt')

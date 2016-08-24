@@ -13,5 +13,6 @@ module load python/2.7.11_gcc
 module load paml/4.9a
 
 # run codeml script
-cd /pylon1/bi4iflp/mlim/Run_codeml_mtdna
-python mt_Acast_modA.py
+cd /pylon1/bi4iflp/mlim/Run_codeml_mtdna/mtDNA_codemlout_Acast
+python /pylon1/bi4iflp/mlim/Run_codeml_mtdna/mt_Acast_modA.py
+
