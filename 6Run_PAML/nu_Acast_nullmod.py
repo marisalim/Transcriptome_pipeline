@@ -35,19 +35,26 @@ def ModelA_nullcodeml_Acast(element, kappastart):
 	cml.run(verbose = True)
 
 # Input files
-alignmentfiles = [f for f in os.listdir('/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/')]
+#alignmentfiles = [f for f in os.listdir('/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/')]
+
+# FOR RERUNS:
+alignmentfiles_null = ['/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000002230.phylip','/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000002255.phylip','/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000009719.phylip']
 
 # Choose start values
-kappa_starts = [0, 0.5, 1, 3.5, 15] # range of start values for kappa
+kappa_starts = [0, 0.5, 1, 3.5, 5, 15] # range of start values for kappa
 #kappa_starts = [0,0.5] # use to test code
-omega_starts = [0, 0.5, 1, 3.5, 15] # range of start values for omega
-#omega_starts = [0,0.5] # use to test code
 
 # Run codeml (null model) with different starting values
 # M1A
-for aname in alignmentfiles: 
+#for aname in alignmentfiles: 
+for aname in alignmentfiles_null: # for reruns
 	if '.phylip' in aname:
-		file_null = aname.split('.')[0]
+		#file_null = aname.split('.')[0]
+				
+		# for reruns ONLY
+		file_null1 = aname.split('/')[6]
+		file_null = file_null1.split('.')[0]
+		
 		print '-----------------------------------------------------'
 		print 'File to run null model on: ', file_null
 		print '-----------------------------------------------------'
@@ -56,7 +63,7 @@ for aname in alignmentfiles:
 		counter = 0 # to move consecutively through the values
 		
 		while notconverged:
-			if counter > 4:
+			if counter > 5:
 				print 'Ok, all start values have been tried.'
 				print 'If you see this message, then the file has still NOT converged. Sigh...'
 				break

@@ -5,6 +5,14 @@
 # For analysis where 1 high altitude species branch is tagged at a time
 # 5 high alt species: Acast, Cviol, Mphoe, Pgiga, Ccoru
 
+# 1. format lnL txt files and calculate LRT
+# 2. check codeml output omegas for genes with significant LRT - e.g., make sure the omega values make sense, filter out ones that are messed up
+# 3. calculate p-value and false discovery rate
+# 4. For remaining genes:
+          # A. extract gene name and function information
+          # B. any overlaps between high alt species?
+          # C. extract nucleotide site BEB scores
+
 # Marisa Lim (c)2016
 
 # load libraries
@@ -21,73 +29,80 @@ MLwd = "C:/Users/mcwlim/Dropbox/Marisacompfiles/Transcriptome files/hi_alt_sp_ln
 setwd(MLwd)
 
 # ----------------- Read in lnL values for each model -----------------
-# nuclear dna files
-nu_nullmod <- read.table("nu_lnL_null.txt")
-nu_testmod <- read.table("nu_lnL_pos.txt")
-head(nu_nullmod)
-head(nu_testmod)
-# give column names
-colnames(nu_nullmod) <- c("Gene", "lnL")
-colnames(nu_testmod) <- c("Gene", "lnL")
-# check dimensions
-dim(nu_nullmod)
-dim(nu_testmod)
-# get gene name
-nu_replacebreak <- gsub(pattern="/", replacement=" ", x=nu_nullmod$Gene)
-nu_splitbreak <- strsplit(nu_replacebreak, split=" ")
-nu_genename1 <- sapply(nu_splitbreak, function(x){
-  paste(x[[7]])
-})
-head(nu_genename1)
-nu_replacebreak2 <- gsub(pattern="_", replacement=" ", x=nu_genename1)
-nu_splitbreak2 <- strsplit(nu_replacebreak2, split=" ")
-nu_genename <- sapply(nu_splitbreak2, function(x){
-  paste(x[[1]])
-})
-head(nu_genename)
 
-# mitochondrial dna files
-nullmod <- read.table("lnL_null.txt")
-testmod <- read.table("lnL_pos.txt")
-head(nullmod)
-head(testmod)
-# give column names
-colnames(nullmod) <- c("Gene", "lnL")
-colnames(testmod) <- c("Gene", "lnL")
-# check dimensions
-dim(nullmod)
-dim(testmod)
-# get gene name
-replacebreak <- gsub(pattern="/", replacement=" ", x=nullmod$Gene)
-splitbreak <- strsplit(replacebreak, split=" ")
-genename1 <- sapply(splitbreak, function(x){
-  paste(x[[7]])
-})
-head(genename1)
-replacebreak2 <- gsub(pattern="_", replacement=" ", x=genename1)
-splitbreak2 <- strsplit(replacebreak2, split=" ")
-genename <- sapply(splitbreak2, function(x){
-  paste(x[[1]])
-})
-head(genename)
+getLRT <- function(mysp, nuc_null, nuc_pos, mito_null, mito_pos){
+  # nuclear dna files
+  nu_nullmod <- read.table(nuc_null)
+  nu_testmod <- read.table(nuc_pos)
+  # give column names
+  colnames(nu_nullmod) <- c("Gene", "lnL")
+  colnames(nu_testmod) <- c("Gene", "lnL")
+  # get gene name
+  nu_replacebreak <- gsub(pattern="/", replacement=" ", x=nu_nullmod$Gene)
+  nu_splitbreak <- strsplit(nu_replacebreak, split=" ")
+  nu_genename1 <- sapply(nu_splitbreak, function(x){
+    paste(x[[8]])
+  })
+  #head(nu_genename1)
+  nu_replacebreak2 <- gsub(pattern="_", replacement=" ", x=nu_genename1)
+  nu_splitbreak2 <- strsplit(nu_replacebreak2, split=" ")
+  nu_genename <- sapply(nu_splitbreak2, function(x){
+    paste(x[[1]])
+  })
+  #head(nu_genename)
+  
+  # mitochondrial dna files
+  mt_nullmod <- read.table(mito_null)
+  mt_testmod <- read.table(mito_pos)
+  # give column names
+  colnames(mt_nullmod) <- c("Gene", "lnL")
+  colnames(mt_testmod) <- c("Gene", "lnL")
+  # get gene name
+  replacebreak <- gsub(pattern="/", replacement=" ", x=mt_nullmod$Gene)
+  splitbreak <- strsplit(replacebreak, split=" ")
+  genename1 <- sapply(splitbreak, function(x){
+    paste(x[[7]])
+  })
+  #head(genename1)
+  replacebreak2 <- gsub(pattern="_", replacement=" ", x=genename1)
+  splitbreak2 <- strsplit(replacebreak2, split=" ")
+  genename <- sapply(splitbreak2, function(x){
+    paste(x[[1]])
+  })
+  #head(genename)
+  
+  # merge the information for both models 
+  LRTdat_nu <- data.frame("Gene"=nu_genename, "Gene_nullmod"=nu_nullmod$Gene, "lnL_nullmod"=nu_nullmod$lnL, 
+                          "Gene_testmod"=nu_testmod$Gene, "lnL_testmod"=nu_testmod$lnL)
+  #head(LRTdat_nu)
+  LRTdat_mito <- data.frame("Gene"=genename, "Gene_nullmod"=mt_nullmod$Gene, "lnL_nullmod"=mt_nullmod$lnL, 
+                            "Gene_testmod"=mt_testmod$Gene, "lnL_testmod"=mt_testmod$lnL)
+  #head(LRTdat_mito)
+  
+  # combine nuclear and mito datasets
+  LRTdat <- rbind(LRTdat_nu, LRTdat_mito)
 
-# merge the information for both models 
-LRTdat_nu <- data.frame("Gene"=nu_genename, "Gene_nullmod"=nu_nullmod$Gene, "lnL_nullmod"=nu_nullmod$lnL, 
-                        "Gene_testmod"=nu_testmod$Gene, "lnL_testmod"=nu_testmod$lnL)
-head(LRTdat_nu)
-LRTdat_mito <- data.frame("Gene"=genename, "Gene_nullmod"=nullmod$Gene, "lnL_nullmod"=nullmod$lnL, 
-                          "Gene_testmod"=testmod$Gene, "lnL_testmod"=testmod$lnL)
-head(LRTdat_mito)
+  # Want values > 0, ignore any < 0
+  LRTdat$LRT <- 2*(LRTdat$lnL_testmod - LRTdat$lnL_nullmod)
+  #head(LRTdat)
+  
+  write.csv(LRTdat, paste(mysp, '_LRT.csv', sep=''))
 
-# combine nuclear and mito datasets
-LRTdat <- rbind(LRTdat_nu, LRTdat_mito)
-dim(LRTdat)
-head(LRTdat)
+}
 
-# ----------------- calculate LRT -----------------
-# Want values > 0, ignore any < 0
-LRTdat$LRT <- 2*(LRTdat$lnL_testmod - LRTdat$lnL_nullmod)
-head(LRTdat)
+getLRT(Acast, 'nu_Acast_lnL_null.txt', 'nu_Acast_lnL_pos.txt', 'Acast_lnL_null.txt', 'Acast_lnL_pos.txt')
+getLRT(Cviol, 'nu_Cviol_lnL_null.txt', 'nu_Cviol_lnL_pos.txt', 'Cviol_lnL_null.txt', 'Cviol_lnL_pos.txt')
+getLRT(Ccoru, 'nu_Ccoru_lnL_null.txt', 'nu_Ccoru_lnL_pos.txt', 'Ccoru_lnL_null.txt', 'Ccoru_lnL_pos.txt')
+getLRT(Mphoe, 'nu_Mphoe_lnL_null.txt', 'nu_Mphoe_lnL_pos.txt', 'Mphoe_lnL_null.txt', 'Mphoe_lnL_pos.txt')
+getLRT(Pgiga, 'nu_Pgiga_lnL_null.txt', 'nu_Pgiga_lnL_pos.txt', 'Pgiga_lnL_null.txt', 'Pgiga_lnL_pos.txt')
+
+
+
+
+
+# -- edit below this ---
+
+
 
 # plot LRT and significance cutoffs
 LRTdat$rownums <- c(1:nrow(LRTdat))
