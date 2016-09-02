@@ -6,12 +6,11 @@
 # 5 high alt species: Acast, Cviol, Mphoe, Pgiga, Ccoru
 
 # 1. format lnL txt files and calculate LRT
-# 2. check codeml output omegas for genes with significant LRT - e.g., make sure the omega values make sense, filter out ones that are messed up
-# 3. calculate p-value and false discovery rate
+# 2. calculate p-value and false discovery rate, extract gene name and function information
+# 3. check codeml output omegas for genes with significant LRT - e.g., make sure the omega values make sense, filter out ones that are messed up
 # 4. For remaining genes:
-          # A. extract gene name and function information
-          # B. any overlaps between high alt species?
-          # C. extract nucleotide site BEB scores
+          # A. any overlaps between high alt species?
+          # B. extract nucleotide site BEB scores
 
 # Marisa Lim (c)2016
 
@@ -28,7 +27,7 @@ library(ggrepel)
 MLwd = "C:/Users/mcwlim/Dropbox/Marisacompfiles/Transcriptome files/hi_alt_sp_lnL_analysis/"
 setwd(MLwd)
 
-# ----------------- Read in lnL values for each model -----------------
+# ----------------- 1. Calculate LRT -----------------
 
 getLRT <- function(mysp, nuc_null, nuc_pos, mito_null, mito_pos){
   # nuclear dna files
@@ -61,7 +60,7 @@ getLRT <- function(mysp, nuc_null, nuc_pos, mito_null, mito_pos){
   replacebreak <- gsub(pattern="/", replacement=" ", x=mt_nullmod$Gene)
   splitbreak <- strsplit(replacebreak, split=" ")
   genename1 <- sapply(splitbreak, function(x){
-    paste(x[[7]])
+    paste(x[[8]])
   })
   #head(genename1)
   replacebreak2 <- gsub(pattern="_", replacement=" ", x=genename1)
@@ -86,178 +85,75 @@ getLRT <- function(mysp, nuc_null, nuc_pos, mito_null, mito_pos){
   LRTdat$LRT <- 2*(LRTdat$lnL_testmod - LRTdat$lnL_nullmod)
   #head(LRTdat)
   
+  LRTdat$Species <- mysp
+  
   write.csv(LRTdat, paste(mysp, '_LRT.csv', sep=''))
 
 }
 
-getLRT(Acast, 'nu_Acast_lnL_null.txt', 'nu_Acast_lnL_pos.txt', 'Acast_lnL_null.txt', 'Acast_lnL_pos.txt')
-getLRT(Cviol, 'nu_Cviol_lnL_null.txt', 'nu_Cviol_lnL_pos.txt', 'Cviol_lnL_null.txt', 'Cviol_lnL_pos.txt')
-getLRT(Ccoru, 'nu_Ccoru_lnL_null.txt', 'nu_Ccoru_lnL_pos.txt', 'Ccoru_lnL_null.txt', 'Ccoru_lnL_pos.txt')
-getLRT(Mphoe, 'nu_Mphoe_lnL_null.txt', 'nu_Mphoe_lnL_pos.txt', 'Mphoe_lnL_null.txt', 'Mphoe_lnL_pos.txt')
-getLRT(Pgiga, 'nu_Pgiga_lnL_null.txt', 'nu_Pgiga_lnL_pos.txt', 'Pgiga_lnL_null.txt', 'Pgiga_lnL_pos.txt')
+getLRT('Acast', 'nu_Acast_lnL_null.txt', 'nu_Acast_lnL_pos.txt', 'Acast_lnL_null.txt', 'Acast_lnL_pos.txt')
+getLRT('Cviol', 'nu_Cviol_lnL_null.txt', 'nu_Cviol_lnL_pos.txt', 'Cviol_lnL_null.txt', 'Cviol_lnL_pos.txt')
+getLRT('Ccoru', 'nu_Ccoru_lnL_null.txt', 'nu_Ccoru_lnL_pos.txt', 'Ccoru_lnL_null.txt', 'Ccoru_lnL_pos.txt')
+getLRT('Mphoe', 'nu_Mphoe_lnL_null.txt', 'nu_Mphoe_lnL_pos.txt', 'Mphoe_lnL_null.txt', 'Mphoe_lnL_pos.txt')
+getLRT('Pgiga', 'nu_Pgiga_lnL_null.txt', 'nu_Pgiga_lnL_pos.txt', 'Pgiga_lnL_null.txt', 'Pgiga_lnL_pos.txt')
 
+# ----------------- 2. Calculate p-values and FDR ---------------
 
-
-
-
-# -- edit below this ---
-
-
-
-# plot LRT and significance cutoffs
-LRTdat$rownums <- c(1:nrow(LRTdat))
-
-# add signif level identifiers
-signif_lev <- c()
-for(i in 1:nrow(LRTdat)){
-  checkthis <- LRTdat$LRT[i]
+getFDR <- function(mysp, LRTdat){
   
-  if(checkthis > 10.83){
-    signif_lev[i] <- 'signif001'
-  } else if(checkthis > 6.64){
-    signif_lev[i] <- 'signif01'
-  } else if(checkthis > 3.84){
-    signif_lev[i] <- 'signif05'
-  } else{
-    signif_lev[i] <- 'nonsig'
+  theLRTdat <- read.csv(LRTdat, header=T)
+  
+  # extract p-values from LRT, use chi-square distribution
+  thepvallist <- list()
+  for(i in 1:nrow(theLRTdat)){
+    theLRT <- theLRTdat$LRT[i]
+    thepval <- pchisq(theLRT, df=1, lower.tail=FALSE)
+    thepvallist[[i]] <- thepval
   }
+  LRTdat_p <- data.frame(theLRTdat, "p-value"=unlist(thepvallist))
+  #head(LRTdat_p)
+  
+  # FDR test Benjamini & Hochberg (1995) using full dataset (except the 5 messed up LRT/BEB ones)
+  fdr_test <- p.adjust(p=LRTdat_p$p.value, method='BH')
+  fdr_df <- as.data.frame(fdr_test)
+  
+  # this dataframe has uncorrected (p.value) and corrected (BH method, fdr_test) p-values
+  # if you forget how to interpret, see this: https://www.r-bloggers.com/example-9-30-addressing-multiple-comparisons/
+  LRTdat_fdr <- cbind(LRTdat_p, fdr_df) 
+  
+  # plot uncorrected and corrected p-values
+  ggplot(data=LRTdat_fdr) + 
+    geom_line(aes(y=sort(p.value), x=X), col='blue', alpha=0.5, size=2) + 
+    geom_line(aes(y=sort(fdr_test), x=X), col='tomato', alpha=0.5, size=2) +
+    geom_hline(aes(yintercept=0.05), col='black', lty=2) +
+   # geom_hline(aes(yintercept=0.01), col='grey', lty=2) +
+    theme_bw() + ggtitle('P-values: uncorrected (blue) \nand BH corrected (red)')
+  ggsave(paste(mysp, '_pvals.jpg', sep=''), height=5, width=5, units='in', dpi=500)
+  
+  # subset data at significance level XXX, here 0.05
+  LRTdat_fdr_ok <- LRTdat_fdr[LRTdat_fdr$fdr_test < 0.05,]
+  
+  # now get gene names for the LRTdat_fdr_ok genes
+  # if usual host not working today...25April16, the above host is an archived
+  #ensembl = useMart(biomart="ENSEMBL_MART_ENSEMBL", dataset="tguttata_gene_ensembl", host="dec2015.archive.ensembl.org")
+  ensembl = useMart(biomart="ENSEMBL_MART_ENSEMBL", dataset="tguttata_gene_ensembl", host='www.ensembl.org')  
+  
+  LRTdat_fdr_ok_withgenenames <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol'), 
+                          filters='ensembl_peptide_id', values=LRTdat_fdr_ok$Gene, mart=ensembl)
+  LRTdat_final <- merge(x=LRTdat_fdr_ok, y=LRTdat_fdr_ok_withgenenames, by.x='Gene', by.y='ensembl_peptide_id')
+  
+  write.csv(LRTdat_final, paste(mysp, '_checkomegas.csv', sep=''))
+  
 }
-signif_lev
 
-LRTdat$Significance_level <- signif_lev
-names(LRTdat)
+getFDR('Acast', 'Acast_LRT.csv')
+getFDR('Cviol', 'Cviol_LRT.csv')
+getFDR('Ccoru', 'Ccoru_LRT.csv')
+getFDR('Mphoe', 'Mphoe_LRT.csv')
+getFDR('Pgiga', 'Pgiga_LRT.csv')
 
-ggplot(LRTdat, aes(x=rownums, y=LRT, color=Significance_level)) + 
-  geom_point(size=3, alpha=0.6) + 
-  theme_bw() + xlab("Index") + ylab("Likelihood ratio test value")
-ggsave("LRTplot.jpg", height=10, width=12, units="in", dpi=500)
 
-LRTdat2 <- LRTdat[LRTdat$LRT > 3.84,]
-dim(LRTdat2)
-p0.05 <- LRTdat[LRTdat$LRT >= 3.84,]
 
-# if usual host not working today...25April16, the above host is an archived
-#ensembl = useMart(biomart="ENSEMBL_MART_ENSEMBL", dataset="tguttata_gene_ensembl", host="dec2015.archive.ensembl.org")
-ensembl = useMart(biomart="ENSEMBL_MART_ENSEMBL", dataset="tguttata_gene_ensembl", host='www.ensembl.org')            
-
-p0.05_go_names <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol'), 
-                        filters='ensembl_peptide_id', values=p0.05$Gene, mart=ensembl)
-LRTdat2 <- merge(x=LRTdat2, y=p0.05_go_names, by.x='Gene', by.y='ensembl_peptide_id')
-LRTdat2$hgnc_symbol[17] <- 'COXI'
-LRTdat2$hgnc_symbol
-# remove messed up LRT genes: Cactin, EEF2, RPS4X, MTX2, COX1
-LRTdat2 <- LRTdat2[-c(1:2, 7, 11, 17),]
-dim(LRTdat)
-dim(LRTdat2)
-
-# remove messed up LRT genes: Cactin, EEF2, RPS4X, MTX2, COX1 from LRTdat
-# ENSTGUP00000000167, ENSTGUP00000001031, ENSTGUP00000004932, ENSTGUP00000009260,ENSTGUP00000018304
-subsetLRT <- LRTdat[-c(16, 75, 305, 557, 941),]
-subsetLRT2 <- subsetLRT[subsetLRT$LRT > 0,]
-dim(subsetLRT)
-dim(subsetLRT2)
-ggplot(subsetLRT2, aes(x=LRT)) + 
-  geom_histogram(bins=10, fill='blue', alpha=0.5) + 
-  scale_y_log10()+
-  theme_bw() + ylab('Log frequency') + 
-  geom_vline(xintercept=3.84, color='red', lwd=3)
-ggsave('LRT_freqplot.jpg', height=6, width=6, units="in", dpi=500)
-
-ggplot(LRTdat2, aes(x=rownums, y=LRT)) + 
-  geom_point(size=5, color='grey') + 
-  geom_label_repel(aes(label=hgnc_symbol, fill=factor(Significance_level)), 
-                   nudge_x=1, nudge_y=1, fontface='bold', color='white',
-                   box.padding=unit(0.25, 'lines')) +
-  theme_bw() + xlab("Index") + ylab("Likelihood ratio test value") +
-  theme(text=element_text(size=20), legend.position='bottom')
-ggsave("LRTplot_signifgenes.jpg", height=10, width=12, units="in", dpi=500)
-
-# Which columns have significant LRT? (df = 1)
-p05dat <- LRTdat[LRTdat$LRT >= 3.84,] # p=0.05
-p01dat <- LRTdat[LRTdat$LRT >= 6.64,] # p=0.01
-p001dat <- LRTdat[LRTdat$LRT >= 10.83,] # p=0.001
-dim(p05dat)
-dim(p01dat)
-dim(p001dat)
-
-p0.05_go_info <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol', 'name_1006','go_id', 'namespace_1003'), 
-                       filters='ensembl_peptide_id', values=LRTdat2$Gene, mart=ensembl)
-p0.05_go_info[p0.05_go_info$hgnc_symbol=='AGTRAP',]
-p0.05_go_info[p0.05_go_info$hgnc_symbol=='C1QBP',]
-p0.05_go_info[p0.05_go_info$hgnc_symbol=='PDIA3',]
-
-p0.05_go_info[p0.05_go_info$namespace_1003=='biological_process',]
-
-# check other datasets
-ensembl_hs = useMart(biomart="ENSEMBL_MART_ENSEMBL", dataset="hsapiens_gene_ensembl", host='www.ensembl.org')  
-ensembl_gg = useMart(biomart="ENSEMBL_MART_ENSEMBL", dataset="ggallus_gene_ensembl", host='www.ensembl.org')  
-
-p0.05_go_info_hs <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol', 'name_1006', 'namespace_1003'), 
-                          filters='hgnc_symbol', values=LRTdat2$hgnc_symbol, mart=ensembl_hs)
-p0.05_go_info_gg <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol', 'name_1006', 'namespace_1003'), 
-                          filters='hgnc_symbol', values=LRTdat2$hgnc_symbol, mart=ensembl_gg)
-p0.05_go_info_hs[p0.05_go_info_hs$hgnc_symbol=='AGTRAP',]
-p0.05_go_info_hs[p0.05_go_info_hs$hgnc_symbol=='C1QBP',]
-p0.05_go_info_hs[p0.05_go_info_hs$hgnc_symbol=='PDIA3',]
-p0.05_go_info_hs[p0.05_go_info_hs$hgnc_symbol=='CCNI',]
-p0.05_go_info_hs[p0.05_go_info_hs$hgnc_symbol=='MEA1',]
-p0.05_go_info_hs[p0.05_go_info_hs$hgnc_symbol=='DNAJB2',]
-p0.05_go_info_hs[p0.05_go_info_hs$hgnc_symbol=='MRPL42',]
-p0.05_go_info_hs[p0.05_go_info_hs$hgnc_symbol=='GOT1',]
-p0.05_go_info_hs[p0.05_go_info_hs$hgnc_symbol=='MRPS26',]
-p0.05_go_info_hs[p0.05_go_info_hs$hgnc_symbol=='LYRM2',]
-
-p0.05_go_info_gg[p0.05_go_info_gg$hgnc_symbol=='AGTRAP',]
-p0.05_go_info_gg[p0.05_go_info_gg$hgnc_symbol=='C1QBP',]
-p0.05_go_info_gg[p0.05_go_info_gg$hgnc_symbol=='PDIA3',]
-
-# ----------------- calculate p-values and FDR ---------------
-thepvallist <- list()
-for(i in 1:nrow(subsetLRT)){
-  theLRT <- subsetLRT$LRT[i]
-  thepval <- pchisq(theLRT, df=1, lower.tail=FALSE)
-  thepvallist[[i]] <- thepval
-}
-LRTdat3 <- data.frame(subsetLRT, "p-value"=unlist(thepvallist))
-head(LRTdat3)
-
-ggplot(LRTdat3, aes(x=p.value)) + 
-  geom_histogram(bins=20, fill='blue', alpha=0.5) + 
-  ggtitle("Uncorrected p-values")
-LRTdat3[LRTdat3$p.value < 0.05, ]
-
-# FDR test Benjamini & Hochberg (1995) using full dataset (except the 5 messed up LRT/BEB ones)
-fdr_test <- p.adjust(p=LRTdat3$p.value, method='BH')
-fdr_df <- as.data.frame(fdr_test)
-ggplot(fdr_df, aes(x=fdr_test)) + 
-  geom_histogram(bins=20, fill='blue', alpha=0.5) +
-  ggtitle('Corrected p-values (q-values)')
-fdr_df[fdr_df$fdr_test < 0.5,]
-
-dim(fdr_df)
-dim(LRTdat3)
-
-LRTdat4 <- cbind(LRTdat3, fdr_df)
-LRTdat4[LRTdat4$fdr_test < 0.2,]
-# last one standing is MEA1 ...
-
-# fdr on a subset of genes......
-# interesting blogpost on the subject: http://bayesiancook.blogspot.com/2014/04/fdr-and-single-gene-experiment.html
-thepvallist2 <- list()
-for(i in 1:nrow(LRTdat2)){
-  theLRT <- LRTdat2$LRT[i]
-  thepval <- pchisq(theLRT, df=1, lower.tail=FALSE)
-  thepvallist2[[i]] <- thepval
-}
-LRTdat5 <- data.frame(LRTdat2, "p-value"=unlist(thepvallist2))
-head(LRTdat5)
-fdr_test2 <- p.adjust(p=LRTdat5$p.value, method='BH')
-fdr_df2 <- as.data.frame(fdr_test2)
-ggplot(fdr_df2, aes(x=fdr_test2)) + 
-  geom_histogram(bins=20, fill='blue', alpha=0.5) +
-  ggtitle('Corrected p-values')
-LRTdat6 <- cbind(LRTdat5, fdr_df2)
-LRTdat6[,c(1,9:11)]
 
 # ----------------- search GO terms/info -----------------
 filters = listFilters(ensembl)
