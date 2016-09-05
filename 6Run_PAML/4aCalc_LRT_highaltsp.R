@@ -17,11 +17,11 @@
 # load libraries
 library(biomaRt)
 library("GO.db")
-library(vegan)
-library(dplyr)
-library(tidyr)
+#library(vegan)
+#library(dplyr)
+#library(tidyr)
 library(ggplot2)
-library(ggrepel)
+#library(ggrepel)
 
 # set working directory
 MLwd = "C:/Users/mcwlim/Dropbox/Marisacompfiles/Transcriptome files/hi_alt_sp_lnL_analysis/"
@@ -99,58 +99,80 @@ getLRT('Pgiga', 'nu_Pgiga_lnL_null.txt', 'nu_Pgiga_lnL_pos.txt', 'Pgiga_lnL_null
 
 # ----------------- 2. Calculate p-values and FDR ---------------
 
+mysp <- c('Acast', 'Cviol', 'Ccoru', 'Mphoe', 'Pgiga')
+LRTdat <- c('Acast_LRT.csv', 'Cviol_LRT.csv', 'Ccoru_LRT.csv', 'Mphoe_LRT.csv', 'Pgiga_LRT.csv')
+
 getFDR <- function(mysp, LRTdat){
   
-  theLRTdat <- read.csv(LRTdat, header=T)
+  d <- data.frame('X'=1, 'Gene'='gene', 'Gene_nullmod'='genenullmod', 'lnL_nullmod'=1, 'Gene_testmod'='genetestmod', 'lnL_testmod'=1, 
+                  'LRT'=1, 'Species'='species', 'p.value'=1, 'fdr_test'=1, 'FDR_ok'='yes', 'hgnc_symbol'='hgnc')
   
-  # extract p-values from LRT, use chi-square distribution
-  thepvallist <- list()
-  for(i in 1:nrow(theLRTdat)){
-    theLRT <- theLRTdat$LRT[i]
-    thepval <- pchisq(theLRT, df=1, lower.tail=FALSE)
-    thepvallist[[i]] <- thepval
+  for(i in 1:length(mysp)){
+    
+    theLRTdat <- read.csv(LRTdat[i], header=T)
+    
+    # extract p-values from LRT, use chi-square distribution
+    thepvallist <- list()
+    for(i in 1:nrow(theLRTdat)){
+      theLRT <- theLRTdat$LRT[i]
+      thepval <- pchisq(theLRT, df=1, lower.tail=FALSE)
+      thepvallist[[i]] <- thepval
+    }
+    LRTdat_p <- data.frame(theLRTdat, "p-value"=unlist(thepvallist))
+    #head(LRTdat_p)
+    
+    # FDR test Benjamini & Hochberg (1995) using full dataset 
+    fdr_test <- p.adjust(p=LRTdat_p$p.value, method='BH')
+    fdr_df <- as.data.frame(fdr_test)
+    
+    # this dataframe has uncorrected (p.value) and corrected (BH method, fdr_test) p-values
+    # if you forget how to interpret, see this: https://www.r-bloggers.com/example-9-30-addressing-multiple-comparisons/
+    LRTdat_fdr <- cbind(LRTdat_p, fdr_df) 
+    
+    # plot uncorrected and corrected p-values
+    #ggplot(data=LRTdat_fdr) + 
+    #  geom_line(aes(y=sort(p.value), x=X), col='blue', alpha=0.5, size=2) + 
+    #  geom_line(aes(y=sort(fdr_test), x=X), col='tomato', alpha=0.5, size=2) +
+    #  geom_hline(aes(yintercept=0.05), col='black', lty=2) +
+    # geom_hline(aes(yintercept=0.01), col='grey', lty=2) +
+    #  theme_bw() + ggtitle('P-values: uncorrected (blue) \nand BH corrected (red)')
+    #ggsave(paste(mysp, '_pvals.jpg', sep=''), height=5, width=5, units='in', dpi=500)
+    
+    # subset data at significance level < 0.05
+    LRTdat_fdr_ok <- LRTdat_fdr[LRTdat_fdr$fdr_test < 0.05,]
+    LRTdat_fdr_ok$FDR_ok <- 'yes'
+    
+    # this is without the correction
+    LRTdat_uncorrected <- LRTdat_fdr[LRTdat_fdr$p.value < 0.05,]
+    LRTdat_uncorrected$FDR_ok <- 'no'
+    
+    # merge both dfs - I want to see which genes were significant before p-value correction
+    LRTdatfinal <- rbind(LRTdat_uncorrected, LRTdat_fdr_ok)
+    
+    # now get gene names for the LRTdat_fdr_ok genes
+    # if usual host not working today...25April16, the above host is an archived
+    #ensembl = useMart(biomart="ENSEMBL_MART_ENSEMBL", dataset="tguttata_gene_ensembl", host="dec2015.archive.ensembl.org")
+    ensembl = useMart(biomart="ENSEMBL_MART_ENSEMBL", dataset="tguttata_gene_ensembl", host='www.ensembl.org')  
+    
+    LRTdat_fdr_ok_withgenenames <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol'), 
+                                         filters='ensembl_peptide_id', values=LRTdatfinal$Gene, mart=ensembl)
+    LRTdat_checkomegas <- merge(x=LRTdatfinal, y=LRTdat_fdr_ok_withgenenames, by.x='Gene', by.y='ensembl_peptide_id')
+    
+    d <- rbind(d, LRTdat_checkomegas)
+    
   }
-  LRTdat_p <- data.frame(theLRTdat, "p-value"=unlist(thepvallist))
-  #head(LRTdat_p)
+  d2 <- d[-1,]
   
-  # FDR test Benjamini & Hochberg (1995) using full dataset (except the 5 messed up LRT/BEB ones)
-  fdr_test <- p.adjust(p=LRTdat_p$p.value, method='BH')
-  fdr_df <- as.data.frame(fdr_test)
-  
-  # this dataframe has uncorrected (p.value) and corrected (BH method, fdr_test) p-values
-  # if you forget how to interpret, see this: https://www.r-bloggers.com/example-9-30-addressing-multiple-comparisons/
-  LRTdat_fdr <- cbind(LRTdat_p, fdr_df) 
-  
-  # plot uncorrected and corrected p-values
-  ggplot(data=LRTdat_fdr) + 
-    geom_line(aes(y=sort(p.value), x=X), col='blue', alpha=0.5, size=2) + 
-    geom_line(aes(y=sort(fdr_test), x=X), col='tomato', alpha=0.5, size=2) +
-    geom_hline(aes(yintercept=0.05), col='black', lty=2) +
-   # geom_hline(aes(yintercept=0.01), col='grey', lty=2) +
-    theme_bw() + ggtitle('P-values: uncorrected (blue) \nand BH corrected (red)')
-  ggsave(paste(mysp, '_pvals.jpg', sep=''), height=5, width=5, units='in', dpi=500)
-  
-  # subset data at significance level XXX, here 0.05
-  LRTdat_fdr_ok <- LRTdat_fdr[LRTdat_fdr$fdr_test < 0.05,]
-  
-  # now get gene names for the LRTdat_fdr_ok genes
-  # if usual host not working today...25April16, the above host is an archived
-  #ensembl = useMart(biomart="ENSEMBL_MART_ENSEMBL", dataset="tguttata_gene_ensembl", host="dec2015.archive.ensembl.org")
-  ensembl = useMart(biomart="ENSEMBL_MART_ENSEMBL", dataset="tguttata_gene_ensembl", host='www.ensembl.org')  
-  
-  LRTdat_fdr_ok_withgenenames <- getBM(attributes=c('ensembl_peptide_id', 'hgnc_symbol'), 
-                          filters='ensembl_peptide_id', values=LRTdat_fdr_ok$Gene, mart=ensembl)
-  LRTdat_final <- merge(x=LRTdat_fdr_ok, y=LRTdat_fdr_ok_withgenenames, by.x='Gene', by.y='ensembl_peptide_id')
-  
-  write.csv(LRTdat_final, paste(mysp, '_checkomegas.csv', sep=''))
+  write.csv(d2, 'gene_checkomegas.csv')
   
 }
+getFDR(mysp, LRTdat)
 
-getFDR('Acast', 'Acast_LRT.csv')
-getFDR('Cviol', 'Cviol_LRT.csv')
-getFDR('Ccoru', 'Ccoru_LRT.csv')
-getFDR('Mphoe', 'Mphoe_LRT.csv')
-getFDR('Pgiga', 'Pgiga_LRT.csv')
+# Look at gene_checkomegas.csv to check if codeml outputs for omega make sense
+
+# Then, see if there are any overlaps in genes or functions between high alt species
+
+
 
 
 
