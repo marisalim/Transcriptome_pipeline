@@ -214,13 +214,9 @@ fdr_df <- as.data.frame(fdr_test)
 ggplot(fdr_df, aes(x=fdr_test)) + 
   geom_histogram(bins=20, fill='blue', alpha=0.5) +
   ggtitle('Corrected p-values (q-values)')
-fdr_df[fdr_df$fdr_test < 0.5,]
-
-dim(fdr_df)
-dim(LRTdat3)
 
 LRTdat4 <- cbind(LRTdat3, fdr_df)
-LRTdat4[LRTdat4$fdr_test < 0.2,]
+LRTdat4[LRTdat4$fdr_test < 0.05,]
 # last one standing is MEA1 ...
 
 # fdr on a subset of genes......
