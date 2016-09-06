@@ -7,6 +7,7 @@
 # load libraries
 library(biomaRt)
 library("GO.db")
+library(qvalue)
 library(vegan)
 library(dplyr)
 library(tidyr)
@@ -218,6 +219,14 @@ ggplot(fdr_df, aes(x=fdr_test)) +
 LRTdat4 <- cbind(LRTdat3, fdr_df)
 LRTdat4[LRTdat4$fdr_test < 0.05,]
 # last one standing is MEA1 ...
+
+# FDR test Storey and Tibshirani 2003
+fdr_test2 <- qvalue(p=LRTdat3$p.value)
+fdr_df2 <- data.frame('qvalue'=fdr_test2$qvalue)
+
+LRTdat4a <- cbind(LRTdat3, fdr_df2)
+LRTdat4a[LRTdat4a$qvalue < 0.05,]
+# last one standing is MEA1
 
 # fdr on a subset of genes......
 # interesting blogpost on the subject: http://bayesiancook.blogspot.com/2014/04/fdr-and-single-gene-experiment.html
