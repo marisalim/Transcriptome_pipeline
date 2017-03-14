@@ -115,8 +115,8 @@ ggplot(LRTdat, aes(x=rownums, y=LRT, color=Significance_level)) +
   theme_bw() + xlab("Index") + ylab("Likelihood ratio test value")
 ggsave("LRTplot.jpg", height=10, width=12, units="in", dpi=500)
 
-LRTdat2 <- LRTdat[LRTdat$LRT > 3.84,]
-dim(LRTdat2)
+LRTdat[LRTdat$LRT > 3.84,]
+
 p0.05 <- LRTdat[LRTdat$LRT >= 3.84,]
 
 # if usual host not working today...25April16, the above host is an archived
@@ -196,12 +196,12 @@ p0.05_go_info_gg[p0.05_go_info_gg$hgnc_symbol=='PDIA3',]
 
 # ----------------- calculate p-values and FDR ---------------
 thepvallist <- list()
-for(i in 1:nrow(subsetLRT)){
-  theLRT <- subsetLRT$LRT[i]
+for(i in 1:nrow(LRTdat)){
+  theLRT <- LRTdat$LRT[i]
   thepval <- pchisq(theLRT, df=1, lower.tail=FALSE)
   thepvallist[[i]] <- thepval
 }
-LRTdat3 <- data.frame(subsetLRT, "p-value"=unlist(thepvallist))
+LRTdat3 <- data.frame(LRTdat, "p-value"=unlist(thepvallist))
 head(LRTdat3)
 
 ggplot(LRTdat3, aes(x=p.value)) + 
@@ -226,7 +226,7 @@ fdr_df2 <- data.frame('qvalue'=fdr_test2$qvalue)
 
 LRTdat4a <- cbind(LRTdat3, fdr_df2)
 LRTdat4a[LRTdat4a$qvalue < 0.05,]
-# last one standing is MEA1
+# last one standing is MEA1 (also COX1, but the omegas are messed up)
 
 # fdr on a subset of genes......
 # interesting blogpost on the subject: http://bayesiancook.blogspot.com/2014/04/fdr-and-single-gene-experiment.html
