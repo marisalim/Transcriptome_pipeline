@@ -26,6 +26,7 @@ library(biomartr)
 library(stringr)
 library(gridExtra)
 library(VennDiagram)
+library(ggtree)
 
 # set working directory
 MLwd = "C:/Users/mcwlim/Dropbox/Marisacompfiles/Transcriptome files/hi_alt_sp_lnL_analysis/"
@@ -212,7 +213,6 @@ write.csv(newdat, 'checkomegas_BHfdr.csv')
 ggplot(newdat, aes(x=FDR_ok)) + geom_bar() + facet_wrap(~Species, ncol=3) + theme_bw()
 ggplot(newdat[newdat$FDR_ok == 'yes, corrected p-value',], aes(x=FDR_ok)) + geom_bar() +
   facet_wrap(~Species, ncol=4) + theme_bw()
-
 for(i in 1:length(mysp)){
   thedat <- newdat[newdat$Species == mysp[i],]
   ggplot(thedat, aes(x=fdr_test, y=p.value)) + geom_point() + facet_wrap(~FDR_ok, ncol=3) +
@@ -226,6 +226,61 @@ for(i in 1:length(mysp)){
 
 }
 
+#plot corrected p-value in species pairs
+#instead of plotting the dN/dS ratios, I can plot the p-values associated with 
+#the significant or nonsignificant dN/dS for each gene
+#obviously the point values are very different from dN/dS, but might be able to 
+#interpret similarly
+FULLcorrectedpvalsdat <- read.csv('BHfdr_totalgenes.csv')
+head(FULLcorrectedpvalsdat)
+unique(FULLcorrectedpvalsdat$Species)
+ggplot(data=FULLcorrectedpvalsdat) + geom_bar(aes(x=fdr_test)) 
+
+Aamaz_df <- FULLcorrectedpvalsdat[FULLcorrectedpvalsdat$Species=='Aamaz',]
+Cmuls_df <- FULLcorrectedpvalsdat[FULLcorrectedpvalsdat$Species=='Cmuls',]
+Acast_df <- FULLcorrectedpvalsdat[FULLcorrectedpvalsdat$Species=='Acast',]
+Mphoe_df <- FULLcorrectedpvalsdat[FULLcorrectedpvalsdat$Species=='Mphoe',]
+Amela_df <- FULLcorrectedpvalsdat[FULLcorrectedpvalsdat$Species=='Amela',]
+Ccoru_df <- FULLcorrectedpvalsdat[FULLcorrectedpvalsdat$Species=='Ccoru',]
+Phart_df <- FULLcorrectedpvalsdat[FULLcorrectedpvalsdat$Species=='Phart',]
+Cviol_df <- FULLcorrectedpvalsdat[FULLcorrectedpvalsdat$Species=='Cviol',]
+Pgiga_df <- FULLcorrectedpvalsdat[FULLcorrectedpvalsdat$Species=='Pgiga',]
+Pmala_df <- FULLcorrectedpvalsdat[FULLcorrectedpvalsdat$Species=='Pmala',]
+Ccoel_df <- FULLcorrectedpvalsdat[FULLcorrectedpvalsdat$Species=='Ccoel',]
+Aviri_df <- FULLcorrectedpvalsdat[FULLcorrectedpvalsdat$Species=='Aviri',]
+
+jpeg('FDRplots_speciespairs.jpg', height=7, width=7, units='in', res=600)
+par(mfrow=c(3,3))
+title('Plots of FDR for species pairs')
+plot(-Cmuls_df$fdr_test, -Pgiga_df$fdr_test)
+abline(b=1, a=0, lty=2)
+abline(h=-0.05, col='red', lty=3)
+abline(v=-0.05, col='red', lty=3)
+plot(-Ccoel_df$fdr_test, -Cviol_df$fdr_test)
+abline(b=1, a=0, lty=2)
+abline(h=-0.05, col='red', lty=3)
+abline(v=-0.05, col='red', lty=3)
+plot(-Aviri_df$fdr_test, -Aamaz_df$fdr_test)
+abline(b=1, a=0, lty=2)
+abline(h=-0.05, col='red', lty=3)
+abline(v=-0.05, col='red', lty=3)
+plot(-Mphoe_df$fdr_test, -Amela_df$fdr_test)
+abline(b=1, a=0, lty=2)
+abline(h=-0.05, col='red', lty=3)
+abline(v=-0.05, col='red', lty=3)
+plot(-Phart_df$fdr_test, -Mphoe_df$fdr_test)
+abline(b=1, a=0, lty=2)
+abline(h=-0.05, col='red', lty=3)
+abline(v=-0.05, col='red', lty=3)
+plot(-Acast_df$fdr_test, -Ccoel_df$fdr_test)
+abline(b=1, a=0, lty=2)
+abline(h=-0.05, col='red', lty=3)
+abline(v=-0.05, col='red', lty=3)
+plot(-Pmala_df$fdr_test, -Ccoru_df$fdr_test)
+abline(b=1, a=0, lty=2)
+abline(h=-0.05, col='red', lty=3)
+abline(v=-0.05, col='red', lty=3)
+dev.off()
 
 # **** Note: the BH and ST methods for calculating correct p-value or qvalue yield same results. ****
 # Storey and Tibshirani 2003 FDR method
@@ -322,9 +377,19 @@ test3 <- test2[test2$Omega.check.short == 'Yes',]; dim(test3)
 # with correction 34/(12*947) * 100 = 0.3%
 dim(test3[test3$FDR_ok.y == 'yes, corrected p-value',]) #34
 dim(test3[test3$FDR_ok.y == 'yes, uncorrected p-value',]) #145
-
+# this is a comparison of with and without correction for p-values
 table(test2$FDR_ok.y, test2$Species.y, test2$Omega.check.short)
 ggplot(test3, aes(x=FDR_ok.y)) + geom_bar() + facet_wrap(~Species.y, ncol=3) + theme_bw() 
+# this is a comparison of genes under selection per species
+test3a <- test3[test3$FDR_ok.y == 'yes, corrected p-value',]
+ggplot(test3a, aes(x=Species.y)) + geom_bar(stat='count', fill='steelblue') + 
+  theme_bw() + xlab('Species') + ylab('Number of genes under positive selection')
+ggsave('NumgenesPosselbyspecies.jpg', height=5, width=5, units='in', dpi=600)
+
+# does this have any phylogenetic pattern? look at on tree
+# not really 
+
+
 
 # plot the genes w/ and w/o correction (with Benjamini and Hochberg correction)
 mysp <- c('Aamaz', 'Amela', 'Aviri', 'Ccoel', 'Cmuls', 'Phart', 'Pmala', 'Acast', 'Cviol', 'Ccoru', 'Mphoe', 'Pgiga')
@@ -367,7 +432,7 @@ ggplot(complete_fdr_dat2, aes(x=Gene, y=fdr_test, col=siglevel)) +
 ggsave('FDR_allgenes.jpg', height=6, width=6, units='in', dpi=600)
   
 ggplot(complete_fdr_dat2, aes(x=fdr_test, fill=siglevel)) + 
-  geom_histogram()
+  geom_histogram() + theme_bw()
   
 write.csv(test3, 'addGOpath_tothisdataset_18feb17.csv')
 
