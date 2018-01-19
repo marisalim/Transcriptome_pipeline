@@ -17,9 +17,9 @@
 # Marisa Lim (c)2016-17
 
 # load libraries
-library(biomaRt)
-library("GO.db")
-library(qvalue)
+library(biomaRt) #biocLite('biomaRt')
+library("GO.db") # biocLite("GO.db")
+library(qvalue) # biocLite('qvalue')
 library(ggplot2)
 library(ggrepel)
 library(biomartr)
@@ -444,7 +444,13 @@ my_pos_sel_list <- read.table('panther - all genes.txt')
 my_pos_sel_list <- data.frame('gene'= gsub(',', '', my_pos_sel_list$V1))
 # All genes analyzed in PAML in transcriptome study
 transcriptome_genes_in_study <- read.csv('../Studygenes.csv', header=T)
-# Candidate genes from the literature
+colnames(transcriptome_genes_in_study) <- c('X', 'EnsemblProteinID', 'AssociatedGeneName')
+# annotation is not so good here...
+  # i manually added in the mitochondrial gene annotations (end of file), so that it will include COX1 and COX3
+
+
+
+# Candidate genes from the literature (below, i redo this using the list from seq cap literature candidate genes)
 litcandlist <- read.csv('../../Seq cap files/mycandgenes.csv', header=T)
 
 head(my_pos_sel_list); dim(my_pos_sel_list)
@@ -452,18 +458,26 @@ head(transcriptome_genes_in_study); dim(transcriptome_genes_in_study)
 head(litcandlist); dim(litcandlist)
 
 # Q1: how many candidate genes from the lit were included in my transcriptome study?
-notinmystudy <- setdiff(litcandlist$Gene_name, transcriptome_genes_in_study$hgnc_symbol)
+notinmystudy <- setdiff(litcandlist$Gene_name, transcriptome_genes_in_study$AssociatedGeneName)
 length(notinmystudy)
 
-inmystudy <- intersect(transcriptome_genes_in_study$hgnc_symbol, litcandlist$Gene_name)
+inmystudy <- intersect(transcriptome_genes_in_study$AssociatedGeneName, litcandlist$Gene_name)
 length(inmystudy); length(litcandlist$Gene_name) - length(notinmystudy) 
-# 27 previously identified candidate genes are included in my study
-  # oops, a few of these are from my other paml analysis
-  # also doesn't include hemoglobin genes
-  # the key genes that were definitely included are EPAS1, EGLN1, hemoglobin
-# ********** this needs more careful checking! **********
+length(inmystudy) - 5
 
-# Q2: how many of my positive selection genes overlap with previously id'd genes?
+# [1] "ISCA1"    "DNAJA1"   "CCNI"     "RPL37"    "AGTRAP"   "RAC3"     "DCXR"     "EPAS1"    "C1QBP"    "ATP6V1G3" "DDX5"     "MEA1"     "TUBA4A"  
+# [14] "DNAJB2"   "RPL5"     "RHOA"     "HIF1AN"   "UBE2N"    "MRPL42"   "GOT1"     "RBX1"     "EGLN1"    "PSMD2"    "PSMC3"    "AP4S1"    "LYRM2"   
+# [27] "CDKN1B"   "ACP1"     "COX1"     "COX3"  
+# 30 previously identified candidate genes are included in my study
+  # oops, a few of these are from my other paml analysis (when I tagged all high alt species together: 
+    #AGTRAP, C1QBP, MYCBP, GOT1, ZNF638, MRPL42, MRPS26, LYRM2, PDIA3, DNAJB2, CCNI, MEA1)
+    # but keep AGTRAP, DNAJB2, C1QBP ==> were identified by other studies!
+    # SO, actually: 25 (take out CCNI, MEA1, LYRM2, GOT1, MRPL42)
+        #doesn't include hemoglobin genes ==> BECAUSE THEY ARE NOT ANNOTATED IN input file
+        # with HBB and HBAD: 25 + 2 = 27
+
+
+ #Q2: how many of my positive selection genes overlap with previously id'd genes?
 differentgenes <- setdiff(litcandlist$Gene_name, my_pos_sel_list$gene)
 length(differentgenes)
 
@@ -474,13 +488,120 @@ length(samegenes) #DNAJA1
 # but overall, i'm seeing pretty different set of genes
 # although their functions/pathways overlap
 
+# 11/19/17: note this isn't complete either because it doesn't include the probe targets i made from transcriptome! :(
+# let's try this again - match up candidate genes from lit (from seq capture pipeline, that were designed based on sequence in Anna's) 
+# with ensembl IDs/annotations in zebra finch
+# want to know what the ensembl IDs are so that I can see whether the genes were sequenced in my transcriptome dataset
+#zebfinchensembl <- read.table('../Taeniopygia_guttata_gene_name.txt', header=T) # DOES NOT RUN: doesn't like the tabs or something?
+#colnames(zebfinchensembl) <- c('EnsemblProteinID', 'AssociatedGeneName', 'WikiGeneDescription')
+#zebfinchensembl <- zebfinchensembl[-1,]
+#head(zebfinchensembl)
+#dim(zebfinchensembl) #9724
+
+# below is the list of candidate genes from lit that I found in Anna's hbird genome reference (used in seq capture pipeline)
+# the original file was called /pylon5/bi4iflp/mlim/SeqCapData/mkref_Canna_targs/checkfastaheaders.txt
+# 9/6/17: i think this does not include candidate genes I had from transcriptomes...
+annacandsgenes <- read.table('../annacands_headers_seqcappipe.txt')
+colnames(annacandsgenes) <- 'AssociatedGeneName'
+head(annacandsgenes)
+dim(annacandsgenes) #232
+annacandsgenes$AssociatedGeneName <- as.character(annacandsgenes$AssociatedGeneName)
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'Q68Y81_CHICK'] <- 'FANCD2'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'C16orf75'] <- 'RMI2'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'NOS2_CHICK'] <- 'NOS2'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'Q5F4B9_CHICK'] <- 'ABCD3'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'HDAC9_CHICK'] <- 'HDAC9'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'LAMB1_CHICK'] <- 'LAMB1'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'Q58I02_CHICK'] <- 'PBEF1'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'Q788Q2_CHICK'] <- 'HGF'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'Q5ZMU9_CHICK'] <- 'VCP'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'Q5ZL56_CHICK'] <- 'ACADS'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'C15orf42'] <- 'TICRR'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'ACE_CHICK'] <- 'ACE'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'UTP15_CHICK'] <- 'UTP15'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'Q5QHR9_CHICK'] <- 'ADAM17'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'NRG1_CHICK'] <- 'NRG1'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'KS6A5_CHICK'] <- 'RPS6KA5'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'NTRK2_CHICK'] <- 'NTRK2'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'RS6_CHICK'] <- 'RPS6'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'Q98SN3_CHICK'] <- 'ARNT'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'PDIA3_CHICK'] <- 'PDIA3'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'CO6A1_CHICK'] <- 'COL6A1'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'CAD13_CHICK'] <- 'CDH13'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'THB_CHICK'] <- 'THRB'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'Q9DGL8_CHICK'] <- 'JSC'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'C17orf60'] <- 'MILR1'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'Q2ACD4_CHICK'] <- 'MRPS26'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'Q5ZJW2_CHICK'] <- 'NDUFB8'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'VINC_CHICK'] <- 'VCL'
+annacandsgenes$AssociatedGeneName[annacandsgenes$AssociatedGeneName == 'KCMA1_CHICK'] <- 'KCNMA1'
+annacandsgenes$AssociatedGeneName <- as.factor(annacandsgenes$AssociatedGeneName)
+
+# how many cand genes are in my study already?
+inzeb <- merge(annacandsgenes, transcriptome_genes_in_study, by='AssociatedGeneName')
+head(inzeb)
+dim(inzeb) #28 (add Hbb to this, so 29 genes included). BUT, seems to be some missing ...e.g., EGLN1
+# *** missing genes (e.g., EGLN1) because they were designed from transcripts not anna's genome. ***
+
+inzeb2 <- inzeb
+inzeb2$AssociatedGeneName <- as.character(inzeb2$AssociatedGeneName)
+inzeb2$AssociatedGeneName[inzeb2$AssociatedGeneName == 'ACADS'] <- 'Q5ZL56_CHICK'
+inzeb2$AssociatedGeneName[inzeb2$AssociatedGeneName == 'MRPS26'] <- 'Q2ACD4_CHICK'
+inzeb2$AssociatedGeneName[inzeb2$AssociatedGeneName == 'RPS6'] <- 'RS6_CHICK'
+inzeb2$AssociatedGeneName[inzeb2$AssociatedGeneName == 'PDIA3'] <- 'PDIA3_CHICK'
+inzeb2$AssociatedGeneName <- as.factor(inzeb2$AssociatedGeneName)
+
+# candidate genes to blast search for against Trinity transcriptome assemblies:
+toblast <- setdiff(annacandsgenes$AssociatedGeneName, inzeb$AssociatedGeneName)
+length(toblast) #203
+toblastdf <- data.frame('Gene'=toblast)
+#have to change gene name back (so that it will match name in ref fasta file)
+toblastdf$Gene <- as.character(toblastdf$Gene)
+toblastdf$Gene[toblastdf$Gene == 'FANCD2'] <- 'Q68Y81_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'RMI2'] <- 'C16orf75'
+toblastdf$Gene[toblastdf$Gene == 'NOS2'] <- 'NOS2_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'ABCD3'] <- 'Q5F4B9_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'HDAC9'] <- 'HDAC9_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'LAMB1'] <- 'LAMB1_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'PBEF1'] <- 'Q58I02_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'HGF'] <- 'Q788Q2_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'VCP'] <- 'Q5ZMU9_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'ACADS'] <- 'Q5ZL56_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'TICRR'] <- 'C15orf42'
+toblastdf$Gene[toblastdf$Gene == 'ACE'] <- 'ACE_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'UTP15'] <- 'UTP15_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'ADAM17'] <- 'Q5QHR9_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'NRG1'] <- 'NRG1_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'RPS6KA5'] <- 'KS6A5_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'NTRK2'] <- 'NTRK2_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'RPS6'] <- 'RS6_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'ARNT'] <- 'Q98SN3_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'PDIA3'] <- 'PDIA3_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'COL6A1'] <- 'CO6A1_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'CDH13'] <- 'CAD13_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'THRB'] <- 'THB_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'JSC'] <- 'Q9DGL8_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'MILR1'] <- 'C17orf60'
+toblastdf$Gene[toblastdf$Gene == 'MRPS26'] <- 'Q2ACD4_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'NDUFB8'] <- 'Q5ZJW2_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'VCL'] <- 'VINC_CHICK'
+toblastdf$Gene[toblastdf$Gene == 'KCNMA1'] <- 'KCMA1_CHICK'
+toblastdf$Gene <- as.factor(toblastdf$Gene)
+
+write.table(toblastdf, '15may17_candgenestoblast_toTrinityassemblies.txt', row.names=FALSE)
+write.table(inzeb2, '15may17_candgenestoEXCLUDEfromblast.txt', row.names=FALSE) #these are the sequences to remove from fasta ref file for blast search
+# 9/6/17 note: see parseblastresults.r for rest of this part - wasn't able to get overlaps for all 12 species
+
 # ----------------- 5. Plot GO and pathway information ---------------
 
 # ------ 5a. Exploring the GO data ------
 # Genes identified under positive selection from my transcriptome study
 my_pos_sel_list <- read.table('panther - all genes.txt')
 # remove commas - 
-my_pos_sel_list <- list(my_pos_sel_list$V1)
+my_pos_sel_list2 <- list(my_pos_sel_list$V1)
+my_pos_sel_list <- gsub(',', '', my_pos_sel_list$V1)
+my_pos_sel_df <- data.frame(my_pos_sel_list)
+colnames(my_pos_sel_df) <- 'gene'
 
 mygoslim <- getGO(organism = 'Homo sapiens', genes = c('CACTIN','TMEM38A','RRP8','ANXA6','TCEA3','DNAJA1',
                                                        'YRDC','MDH1','GPD1','PSAP',
@@ -495,7 +616,7 @@ dim(mygoslim)
 ensembl = useMart(biomart="ENSEMBL_MART_ENSEMBL", dataset="hsapiens_gene_ensembl", host='www.ensembl.org')  
 ensembl@attributes$name
 GOpath_info <- getBM(attributes=c('hgnc_symbol','name_1006', 'namespace_1003'), 
-                     filters='hgnc_symbol', values=my_pos_sel_list$gene, mart=ensembl)
+                     filters='hgnc_symbol', values=my_pos_sel_df$gene, mart=ensembl)
 # add attribute 'definition_1006' for more details
 dim(GOpath_info)
 GOpath_info[GOpath_info$name_1006 == '',] <- 'unknown'
@@ -640,5 +761,17 @@ dev.off()
 
 
 
+
+
+
+# ------ 5c. Plotting BP GO terms from Panther low vs. high
+bpgo_dat <- read.csv('../transcriptome paper drafts/PantherBPGO_plotexplore.csv')
+head(bpgo_dat)
+
+ggplot(data=bpgo_dat) + geom_bar(aes(x=GO.database.BP.complete)) +
+  facet_wrap(~Elevation) + theme_bw() + coord_flip() + xlab('Biological Process GO term')
+
+ggplot(data=bpgo_dat) + geom_bar(aes(x=GO.database.BP.complete, fill=Elevation), position='stack') +
+  theme_bw() + coord_flip() + xlab('Biological Process GO term')
 
 
