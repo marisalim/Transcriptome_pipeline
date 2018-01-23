@@ -99,7 +99,7 @@ for aname in alignmentfiles:
 				print('---------------------------------------')
 				
 			else: 
-				os.system('mv ' + file_null + '_' + treename + '_nucl_modAnull.out /gpfs/scratch/mclim/' + output_dir)
+				os.system('mv ' + file_null + '_' + treename + '_nucl_modAnull.out ./' + output_dir)
 				print('Success!!!', file_null, ' moved to output directory: ', output_dir)
 				print('----------------------------------------------------------------')
 				break
@@ -130,7 +130,7 @@ for aname in alignmentfiles:
 				print('---------------------------------------')
 				
 			else: 
-				os.system('mv ' + file_pos + '_' + treename + '_nucl_modApos.out /gpfs/scratch/mclim/' + output_dir)
+				os.system('mv ' + file_pos + '_' + treename + '_nucl_modApos.out ./' + output_dir)
 				print('Success!!!', file_pos, ' moved to output directory: ', output_dir)
 				print('----------------------------------------------------------------')
 				break
@@ -140,8 +140,8 @@ for aname in alignmentfiles:
 
 # grab the lnL outputs to check if results significant, the results file will be in the Run_codeml directory (or whichever directory this script is in)
 
-os.system('grep lnL /gpfs/scratch/mclim/' + output_dir +'/*_nucl_modAnull.out | awk \'{print $1"\t"$5}\' > /gpfs/scratch/mclim/' + output_dir + '/' + treename +'lnL_nuclnull.txt')
-os.system('grep lnL /gpfs/scratch/mclim/' + output_dir +'/*_nucl_modApos.out | awk \'{print $1"\t"$5}\' > /gpfs/scratch/mclim/' + output_dir + '/' + treename +'lnL_nuclpos.txt')
+os.system('grep lnL ./' + output_dir +'/*_nucl_modAnull.out | awk \'{print $1"\t"$5}\' > ./' + output_dir + '/' + treename +'lnL_nuclnull.txt')
+os.system('grep lnL ./' + output_dir +'/*_nucl_modApos.out | awk \'{print $1"\t"$5}\' > ./' + output_dir + '/' + treename +'lnL_nuclpos.txt')
 
 
 

@@ -99,7 +99,7 @@ for aname in alignmentfiles:
 				print('---------------------------------------')
 				
 			else: 
-				os.system('mv ' + file_null + '_' + treename + '_modAnull.out /gpfs/scratch/mclim/' + output_dir)
+				os.system('mv ' + file_null + '_' + treename + '_modAnull.out ./' + output_dir)
 				print('Success!!!', file_null, ' moved to output directory: ', output_dir)
 				print('----------------------------------------------------------------')
 				break
@@ -130,7 +130,7 @@ for aname in alignmentfiles:
 				print('---------------------------------------')
 				
 			else: 
-				os.system('mv ' + file_pos + '_' + treename + '_modApos.out /gpfs/scratch/mclim/' + output_dir)
+				os.system('mv ' + file_pos + '_' + treename + '_modApos.out ./' + output_dir)
 				print('Success!!!', file_pos, ' moved to output directory: ', output_dir)
 				print('----------------------------------------------------------------')
 				break
@@ -140,5 +140,5 @@ for aname in alignmentfiles:
 # grab the lnL outputs to check if results significant, the results file will be in the Run_codeml_mtdna directory (or whichever directory this script is in)
 ## this runs, but saves file to home folder home/mlim
 ## or you can just run this separately in python after codeml analysis finishes
-os.system('grep lnL /gpfs/scratch/mclim/' + output_dir + '/*modAnull.out | awk \'{print $1"\t"$5}\' > /gpfs/scratch/mclim/' + output_dir + '/' + treename +'_lnL_null.txt')
-os.system('grep lnL /gpfs/scratch/mclim/' + output_dir + '/*modApos.out | awk \'{print $1"\t"$5}\' > /gpfs/scratch/mclim/' + output_dir + '/' + treename + '_lnL_pos.txt')
+os.system('grep lnL ./' + output_dir + '/*modAnull.out | awk \'{print $1"\t"$5}\' > ./' + output_dir + '/' + treename +'_lnL_null.txt')
+os.system('grep lnL ./' + output_dir + '/*modApos.out | awk \'{print $1"\t"$5}\' > ./' + output_dir + '/' + treename + '_lnL_pos.txt')
