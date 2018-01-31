@@ -5,15 +5,17 @@
 
 # NOTE: this is for nuclear dna sequences
 
+#### THIS IS FOR REDOS (CONVERGENCE NOT REACHED) ####
+
 # import modules
 import os
 import sys
 from Bio.Phylo.PAML import codeml
 
 # this is M1A model, the null to ModelA 
-def ModelA_nullcodeml(element, gene_batch, tree, treename, kappastart):
+def ModelA_nullcodeml(element, tree, treename, kappastart):
 	cml = codeml.Codeml()
-	cml.alignment = '/gpfs/scratch/mclim/Codeml_nucleargenes/' + gene_batch + element + '.phylip'
+	cml.alignment = '/gpfs/scratch/mclim/Codeml_nucleargenes/convergence_redo_batch/null_redos/' + element + '.phylip'
 	cml.tree = tree #Note: using an unrooted tree
 	cml.out_file = element + '_' + treename + '_nucl_modAnull.out'
 	cml.working_dir = './'
@@ -37,9 +39,9 @@ def ModelA_nullcodeml(element, gene_batch, tree, treename, kappastart):
 	cml.run(verbose = True)
 
 # this is ModelA, allows positive selection
-def ModelA_poscodeml(element, gene_batch, tree, treename, kappastart, omegastart):
+def ModelA_poscodeml(element, tree, treename, kappastart, omegastart):
 	cml = codeml.Codeml()
-	cml.alignment = '/gpfs/scratch/mclim/Codeml_nucleargenes/' + gene_batch + element + '.phylip'
+	cml.alignment = '/gpfs/scratch/mclim/Codeml_nucleargenes/convergence_redo_batch/pos_redos/' + element + '.phylip'
 	cml.tree = tree #Note: using an unrooted tree
 	cml.out_file = element + '_' + treename + '_nucl_modApos.out'
 	cml.working_dir = './'
@@ -66,8 +68,11 @@ def ModelA_poscodeml(element, gene_batch, tree, treename, kappastart, omegastart
 output_dir = sys.argv[-1] #output dir name
 tree = sys.argv[-2] #this is the tree file
 treename = sys.argv[-3] # this is the tree name
-gene_batch = sys.argv[-4]
-alignmentfiles = [f for f in os.listdir('/gpfs/scratch/mclim/Codeml_nucleargenes/' + gene_batch)]
+# Redo genes for pos sel model
+alignmentfiles_pos = [f for f in os.listdir('/gpfs/scratch/mclim/Codeml_nucleargenes/convergence_redo_batch/pos_redos/')]
+
+# Redo genes for null model
+alignmentfiles_null = [f for f in os.listdir('/gpfs/scratch/mclim/Codeml_nucleargenes/convergence_redo_batch/null_redos/')]
 
 # Choose start values
 kappa_starts = [0, 0.5, 1, 3.5, 15] # range of start values for kappa
@@ -76,7 +81,7 @@ omega_starts = [0, 0.5, 1, 3.5, 15] # range of start values for omega
 #omega_starts = [0,0.5] # use to test code
 
 # Run codeml (null model) with different starting values
-for aname in alignmentfiles: 
+for aname in alignmentfiles_null: 
 	if '.phylip' in aname:
 		file_null = aname.split('.')[0]
 		print('-----------------------------------------------------')
@@ -92,7 +97,7 @@ for aname in alignmentfiles:
 				print('If you see this message, then the file has still NOT converged. Sigh...')
 				break
 				
-			ModelA_nullcodeml(file_null, gene_batch, tree, treename, kappa_starts[counter])
+			ModelA_nullcodeml(file_null, tree, treename, kappa_starts[counter])
 	
 			if 'check convergence..' in open(file_null + '_' + treename + '_nucl_modAnull.out').read(): 
 				print('Nope, try again...', file_null)
@@ -107,7 +112,7 @@ for aname in alignmentfiles:
 			counter += 1
 
 # Run codeml (positive selection model) with different starting values		
-for aname in alignmentfiles:
+for aname in alignmentfiles_pos:
 	if '.phylip' in aname:
 		file_pos = aname.split('.')[0]
 		print('-----------------------------------------------------')
@@ -123,7 +128,7 @@ for aname in alignmentfiles:
 				print('If you see this message, then the file has still NOT converged. Sigh...')
 				break
 				
-			ModelA_poscodeml(file_pos, gene_batch, tree, treename, kappa_starts[counter], omega_starts[counter])
+			ModelA_poscodeml(file_pos, tree, treename, kappa_starts[counter], omega_starts[counter])
 	
 			if 'check convergence..' in open(file_pos + '_' + treename + '_nucl_modApos.out').read():
 				print('Nope, try again...', file_pos)
@@ -138,9 +143,8 @@ for aname in alignmentfiles:
 			counter += 1
 
 # grab the lnL outputs to check if results significant, the results file will be in the Run_codeml directory (or whichever directory this script is in)
-
-os.system('grep lnL ./' + output_dir +'/*_nucl_modAnull.out | awk \'{print $1"\t"$5}\' > ./' + output_dir + '/' + treename +'lnL_nuclnull.txt')
-os.system('grep lnL ./' + output_dir +'/*_nucl_modApos.out | awk \'{print $1"\t"$5}\' > ./' + output_dir + '/' + treename +'lnL_nuclpos.txt')
+#os.system('grep lnL ./' + output_dir +'/*_nucl_modAnull.out | awk \'{print $1"\t"$5}\' > ./' + output_dir + '/' + treename +'lnL_nuclnull.txt')
+#os.system('grep lnL ./' + output_dir +'/*_nucl_modApos.out | awk \'{print $1"\t"$5}\' > ./' + output_dir + '/' + treename +'lnL_nuclpos.txt')
 
 
 
