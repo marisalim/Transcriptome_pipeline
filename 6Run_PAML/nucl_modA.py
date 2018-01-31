@@ -142,7 +142,8 @@ for aname in alignmentfiles:
 os.system('grep lnL ./' + output_dir +'/*_nucl_modAnull.out | awk \'{print $1"\t"$5}\' > ./' + output_dir + '/' + treename +'lnL_nuclnull.txt')
 os.system('grep lnL ./' + output_dir +'/*_nucl_modApos.out | awk \'{print $1"\t"$5}\' > ./' + output_dir + '/' + treename +'lnL_nuclpos.txt')
 
-
+# or this in terminal if you do this command outside of the script
+#grep lnL ./*modAnull.out | awk '{print $1"\t"$5}' > D_lnL_nuclnull.txt
 
 
 
