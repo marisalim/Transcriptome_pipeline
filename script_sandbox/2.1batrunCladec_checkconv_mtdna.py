@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 
-# can search files for 'check convergence', if found:
-# write file name to rerun.txt
-# use this rerun.txt list to search the phylipforpaml files
-# grab the files to rerun and put back into paml loop
-# def codeml function with input 'element' for the file name and starting values...
-# in while loop that runs the function, set the different starting values
-# eventually, should build this into the original script (nullbatrun or posbatrun)
+# goal here is to combine the nullbatruncodeml.py, postbatruncodeml.py, and rerun_codeml.py scripts
+# it will run codeml for both models with different starting values, checking for convergence, and grab lnL values
+
+# NOTE: this is for mitochondrial dna sequences
 
 # import modules
 import os
@@ -62,68 +59,21 @@ def cladeCcodeml(element, kappastart, omegastart):
 	
 	cml.run(verbose = True)
 
-#write rerun text files
-outputs = [f for f in os.listdir('/home/mlim/')]
-out1 = open('rerun_M2arelnull.txt', 'w')
-out2 = open('rerun_cladeC.txt', 'w')
-for outs in outputs:
-        if 'M2arelnull.out' in outs:
-            myfile = open('/home/mlim/' + outs, 'r')
-            filename = outs.split('.')[0]
-            for aline in myfile:
-                if 'check convergence..' in aline:
-#                   print filename
-                    out1.write(filename + '\n')
-		if 'cladeC.out' in outs:
-			myfile = open('/home/mlim/' + outs, 'r')
-			filename = outs.split('.')[0]
-			for aline in myfile:
-				if 'check convergence..' in aline:
-					out2.write(filename + '\n')
-out1.close()	
-out2.close()
+# Input files
+alignmentfiles = [f for f in os.listdir('/crucible/bi4iflp/mlim/Run_codeml_mtdna/mtDNA_phylipfiles/')]
 
-# TODO: should i make this run separately for each model or together??	
-reruns = open('rerun.txt', 'r')
+# Choose start values
 kappa_starts = [0, 0.5, 1, 3.5, 15] # range of start values for kappa
 #kappa_starts = [0,0.5] # use to test code
 omega_starts = [0, 0.5, 1, 3.5, 15] # range of start values for omega
 #omega_starts = [0,0.5] # use to test code
 
-for aname in reruns:
-	if 'null' in aname:
-		file_rerun = aname.split('_')[0]
+# Run codeml (null model) with different starting values
+for aname in alignmentfiles: 
+	if '.phylip' in aname:
+		file_M2arel = aname.split('.')[0]
 		print '-----------------------------------------------------'
-		print 'File to rerun null model on: ', file_rerun
-		print '-----------------------------------------------------'
-		
-		notconverged = True #set this to initial state for while loop
-		counter = 0 # to move consecutively through the values
-		
-		while notconverged:
-			if counter > 4:
-				print 'Ok, all start values have been tried.'
-				print 'If you see this message, then the file has still NOT converged. Sigh...'
-				break
-				
-			ModelA_nullcodeml(file_rerun, kappa_starts[counter])
-	
-			if 'check convergence..' in open(file_rerun + '_modAnull.out').read():
-				print 'Nope, try again...', file_rerun
-				print '---------------------------------------'
-				
-			else: 
-				os.system('mv ' + file_rerun + '_modAnull.out ./Codeml_outputs')
-				print 'Successful rerun!!!', file_rerun, ' moved to Codeml_outputs directory'
-				print '----------------------------------------------------------------'
-				break
-				
-			counter += 1
-			
-	if 'pos' in aname:
-		file_rerun = aname.split('_')[0]
-		print '-----------------------------------------------------'
-		print 'File to rerun pos model on: ', file_rerun
+		print 'File to run M2arel model on: ', file_M2arel
 		print '-----------------------------------------------------'
 		
 		notconverged = True #set this to initial state for while loop
@@ -135,45 +85,55 @@ for aname in reruns:
 				print 'If you see this message, then the file has still NOT converged. Sigh...'
 				break
 				
-			ModelA_poscodeml(file_rerun, kappa_starts[counter], omega_starts[counter])
-	
-			if 'check convergence..' in open(file_rerun + '_modApos.out').read():
-				print 'Nope, try again...', file_rerun
+			M2arelcodeml(file_M2arel, kappa_starts[counter], omega_starts[counter])
+			os.system('cd /home/mlim/')
+			os.system('codeml codemlM2arel.ctl') 
+		
+			if 'check convergence..' in open(file_M2arel + '_M2arelnull.out').read(): 
+				print 'Nope, try again...', file_M2arel
 				print '---------------------------------------'
 				
 			else: 
-				os.system('mv ' + file_rerun + '_modApos.out ./Codeml_outputs')
-				print 'Successful reruns!!!', file_rerun, ' moved to Codeml_outputs directory'
+				os.system('mv ' + file_M2arel + '_M2arelnull.out /crucible/bi4iflp/mlim/Run_codeml_mtdna/mtDNA_codeml_outputs')
+				print 'Success!!!', file_M2arel, ' moved to mtDNA_codeml_outputs directory'
+				print '----------------------------------------------------------------'
+				break
+				
+			counter += 1
+		
+# Run codeml (positive selection model) with different starting values			
+for aname in alignmentfiles:
+	if '.phylip' in aname:
+		file_cladeC = aname.split('.')[0]
+		print '-----------------------------------------------------'
+		print 'File to run cladeC model on: ', file_cladeC
+		print '-----------------------------------------------------'
+		
+		notconverged = True #set this to initial state for while loop
+		counter = 0 # to move consecutively through the values
+		
+		while notconverged:
+			if counter > 4:
+				print 'Ok, all start values have been tried.'
+				print 'If you see this message, then the file has still NOT converged. Sigh...'
+				break
+				
+			cladeCcodeml(file_cladeC, kappa_starts[counter], omega_starts[counter])
+	
+			if 'check convergence..' in open(file_cladeC + '_cladeC.out').read():
+				print 'Nope, try again...', file_cladeC
+				print '---------------------------------------'
+				
+			else: 
+				os.system('mv ' + file_cladeC + '_cladeC.out /crucible/bi4iflp/mlim/Run_codeml_mtdna/mtDNA_codeml_outputs')
+				print 'Success!!!', file_cladeC, ' moved to mtDNA_codeml_outputs directory'
 				print '----------------------------------------------------------------'
 				break
 				
 			counter += 1
 
-
-
-
-
-
-		
-
-				
-		
-
-
-
-
-
-				
-		
-		
-
-
-
-
-
-
-		
-		
-		
-		
-		
+# grab the lnL outputs to check if results significant, the results file will be in the Run_codeml_mtdna directory (or whichever directory this script is in)
+## this runs, but saves file to home folder home/mlim
+## or you can just run this separately in python after codeml analysis finishes
+os.system('grep lnL /crucible/bi4iflp/mlim/Run_codeml_mtdna/mtDNA_codeml_outputs/*_M2arelnull.out | awk \'{print $1"\t"$5}\' > /crucible/bi4iflp/mlim/Run_codeml_mtdna/lnL_M2a_relnull.txt')
+os.system('grep lnL /crucible/bi4iflp/mlim/Run_codeml_mtdna/mtDNA_codeml_outputs/*_cladeC.out | awk \'{print $1"\t"$5}\' > /crucible/bi4iflp/mlim/Run_codeml_mtdna/lnL_cladeC.txt')
