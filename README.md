@@ -4,7 +4,7 @@ Author: Marisa Lim
 
 Contact: marisalim@stonybrook.edu
 
-This repository contains code for assembling and analyzing transcriptome data. See Transcriptome_pipe _code.jpg for explanation about the scripts.
+This repository contains code for assembling and analyzing transcriptome data. See Transcriptome_pipeline_readme.txt for explanation about the scripts.
 
 ---
 
