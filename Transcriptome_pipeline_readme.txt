@@ -1,5 +1,5 @@
 List of scripts and brief explanation of function. Miscellaneous scripts (for testing, old, etc.) are in the script_sandbox/ directory.
-Code contributions from Ke Bi, Sonal Singhal, and Mark Phuong.
+Code contributions from Sonal Singhal and Mark Phuong.
 
 # 1Data_filtering_cleaning: 
 1passfilterandmodifyname.py (remove reads that failed Illumina filter, edit sequence ids)
@@ -21,6 +21,22 @@ rename_cdsfiles.py (format species names in fasta files)
 mafft_align.py (align annotated CDS with Mafft; use mafft_align_wrapper.sh)
 
 # 5Run_PAML:
+rename_sp.py (edit fasta file names)
+1.0convertnexusphylip.py (convert fasta > nexus > phylip for PAML; use fasta2Nexus.py and nexus2phylip.py)
+1.1checkcodonlength.py (make sure sequence lengths are multiples of 3 - otherwise PAML will give error)
+  # single-branch foreground analyses:
+  
+  4aCalc_LRT_highaltsp.r (calculate LRT from codeml results, calculate corrected p-value, analyze positively selected genes)
+  
+  # multi-branch foreground analyses:
+  nucl_modA.py (run PAML for nuclear genes; use nucl_wrapperB.sh, nucl_wrapperD.sh, nucl_wrapperE.sh, nucl_wrapperstar.sh)
+  mt_modA.py (run PAML for mitochondrial genes; use mt_wrapperB.sh, mt_wrapperD.sh, mt_wrapperE.sh, mt_wrapperstar.sh)
+  
+    - check names of batch scripts
+    
+  4bCalc_LRT_Jan2018reanalysis.r (calculate LRT from codeml results, analyze PSGs)
+
+
 
 
 
