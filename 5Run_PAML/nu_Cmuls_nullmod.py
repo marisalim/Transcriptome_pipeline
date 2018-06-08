@@ -9,11 +9,11 @@ import os
 from Bio.Phylo.PAML import codeml
 
 # this is M1A model, the null to ModelA 
-def ModelA_nullcodeml_Cviol(element, kappastart):
+def ModelA_nullcodeml_Cmuls(element, kappastart):
 	cml = codeml.Codeml()
 	cml.alignment = '/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/' +  element + '.phylip'
-	cml.tree = '/pylon1/bi4iflp/mlim/Run_codeml_nudna/transcriptometree_noroot_Cviol.tree' #Note: using an unrooted tree
-	cml.out_file = element + '_Cviol_modAnull.out'
+	cml.tree = '/pylon1/bi4iflp/mlim/Run_codeml_nudna/transcriptometree_noroot_Cmuls.tree' #Note: using an unrooted tree
+	cml.out_file = element + '_Cmuls_modAnull.out'
 	cml.working_dir = './'
 
 	cml.set_options(verbose = 1, 
@@ -35,10 +35,10 @@ def ModelA_nullcodeml_Cviol(element, kappastart):
 	cml.run(verbose = True)
 
 # Input files
-#alignmentfiles = [f for f in os.listdir('/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/')]
+alignmentfiles = [f for f in os.listdir('/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/')]
 
-# FOR RERUNS:
-alignmentfiles_null = ['/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000006084.phylip']
+#FOR RERUNS:
+#alignmentfiles_null = ['/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000016470.phylip']
 
 # Choose start values
 kappa_starts = [0, 0.005, 0.2, 3, 8, 15] # range of start values for kappa
@@ -46,14 +46,14 @@ kappa_starts = [0, 0.005, 0.2, 3, 8, 15] # range of start values for kappa
 
 # Run codeml (null model) with different starting values
 # M1A
-#for aname in alignmentfiles: 
-for aname in alignmentfiles_null: # for reruns
+for aname in alignmentfiles: 
+#for aname in alignmentfiles_null: # for reruns
 	if '.phylip' in aname:
-		#file_null = aname.split('.')[0]
+		file_null = aname.split('.')[0]
 				
 		# for reruns ONLY
-		file_null1 = aname.split('/')[6]
-		file_null = file_null1.split('.')[0]
+		#file_null1 = aname.split('/')[6]
+		#file_null = file_null1.split('.')[0]
 		
 		print '-----------------------------------------------------'
 		print 'File to run null model on: ', file_null
@@ -68,20 +68,20 @@ for aname in alignmentfiles_null: # for reruns
 				print 'If you see this message, then the file has still NOT converged. Sigh...'
 				break
 				
-			ModelA_nullcodeml_Cviol(file_null, kappa_starts[counter])
+			ModelA_nullcodeml_Cmuls(file_null, kappa_starts[counter])
 	
-			if 'check convergence..' in open(file_null + '_Cviol_modAnull.out').read(): 
+			if 'check convergence..' in open(file_null + '_Cmuls_modAnull.out').read(): 
 				print 'Nope, try again...', file_null
 				print '---------------------------------------'
 				
 			else: 
-				os.system('mv ' + file_null + '_Cviol_modAnull.out /pylon1/bi4iflp/mlim/Run_codeml_nudna/nuDNA_codemlout_Cviol/Cviolout_nu')
-				print 'Success!!!', file_null, ' moved to Cviolout_nu directory'
+				os.system('mv ' + file_null + '_Cmuls_modAnull.out /pylon1/bi4iflp/mlim/Run_codeml_nudna/nuDNA_codemlout_Cmuls/Cmulsout_nu')
+				print 'Success!!!', file_null, ' moved to Cmulsout_nu directory'
 				print '----------------------------------------------------------------'
 				break
 				
 			counter += 1
 
 # grab the lnL outputs to check if results significant, the results file will be in the Run_codeml directory (or whichever directory this script is in)
-os.system('grep lnL /pylon1/bi4iflp/mlim/Run_codeml_nudna/nuDNA_codemlout_Cviol/Cviolout_nu/*modAnull.out | awk \'{print $1"\t"$5}\' > /pylon1/bi4iflp/mlim/Run_codeml_nudna/nu_Cviol_lnL_null.txt')
+os.system('grep lnL /pylon1/bi4iflp/mlim/Run_codeml_nudna/nuDNA_codemlout_Cmuls/Cmulsout_nu/*modAnull.out | awk \'{print $1"\t"$5}\' > /pylon1/bi4iflp/mlim/Run_codeml_nudna/nu_Cmuls_lnL_null.txt')
 		

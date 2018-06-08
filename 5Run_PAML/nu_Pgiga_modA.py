@@ -38,12 +38,12 @@ def ModelA_poscodeml_Pgiga(element, kappastart, omegastart):
 #alignmentfiles = [f for f in os.listdir('/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/')]
 
 # FOR RERUNS:
-alignmentfiles_pos = ['/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000002255.phylip', '/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000003240.phylip', '/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000010255.phylip', '/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000011391.phylip']
+alignmentfiles_pos = ['/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000002255.phylip']
 
 # Choose start values
-kappa_starts = [0, 0.5, 1, 3.5, 5, 15] # range of start values for kappa
+kappa_starts = [0, 0.01, 2, 5, 8, 25] # range of start values for kappa
 #kappa_starts = [0,0.5] # use to test code
-omega_starts = [0, 0.5, 1, 3.5, 5, 15] # range of start values for omega
+omega_starts = [0, 0.01, 2, 5, 8, 25] # range of start values for omega
 #omega_starts = [0,0.5] # use to test code
 
 # Run codeml (positive selection model) with different starting values		
@@ -51,11 +51,11 @@ omega_starts = [0, 0.5, 1, 3.5, 5, 15] # range of start values for omega
 #for aname in alignmentfiles:
 for aname in alignmentfiles_pos: # for reruns
 	if '.phylip' in aname:
-		#file_pos = aname.split('.')[0]
+		file_pos = aname.split('.')[0]
 		
 		# for reruns
-		file_pos1 = aname.split('/')[6]
-		file_pos = file_pos1.split('.')[0]
+		#file_pos1 = aname.split('/')[6]
+		#file_pos = file_pos1.split('.')[0]
 		
 		print '-----------------------------------------------------'
 		print 'File to run pos model on: ', file_pos

@@ -38,12 +38,12 @@ def ModelA_poscodeml_Mphoe(element, kappastart, omegastart):
 #alignmentfiles = [f for f in os.listdir('/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/')]
 
 # FOR RERUNS:
-alignmentfiles_pos = ['/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000002255.phylip', '/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000011391.phylip']
+alignmentfiles_pos = ['/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000011391.phylip']
 
 # Choose start values
-kappa_starts = [0, 0.5, 1, 3.5, 5, 15] # range of start values for kappa
+kappa_starts = [0, 0.005, 0.2, 3, 8, 15] # range of start values for kappa
 #kappa_starts = [0,0.5] # use to test code
-omega_starts = [0, 0.5, 1, 3.5, 5, 15] # range of start values for omega
+omega_starts = [0, 0.005, 0.2, 3, 8, 15] # range of start values for omega
 #omega_starts = [0,0.5] # use to test code
 
 # Run codeml (positive selection model) with different starting values		

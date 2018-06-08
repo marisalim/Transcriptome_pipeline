@@ -9,11 +9,11 @@ import os
 from Bio.Phylo.PAML import codeml
 
 # this is ModelA, allows positive selection
-def ModelA_poscodeml_Acast(element, kappastart, omegastart):
+def ModelA_poscodeml_Ccoel(element, kappastart, omegastart):
 	cml = codeml.Codeml()
 	cml.alignment = '/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/' +  element + '.phylip'
-	cml.tree = '/pylon1/bi4iflp/mlim/Run_codeml_nudna/transcriptometree_noroot_Acast.tree' #Note: using an unrooted tree
-	cml.out_file = element + '_Acast_modApos.out'
+	cml.tree = '/pylon1/bi4iflp/mlim/Run_codeml_nudna/transcriptometree_noroot_Ccoel.tree' #Note: using an unrooted tree
+	cml.out_file = element + '_Ccoel_modApos.out'
 	cml.working_dir = './'
 
 	cml.set_options(verbose = 1, 
@@ -41,9 +41,9 @@ def ModelA_poscodeml_Acast(element, kappastart, omegastart):
 alignmentfiles_pos = ['/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000002255.phylip']
 
 # Choose start values
-kappa_starts = [0, 0.05, 0.5, 3, 6, 15] # range of start values for kappa
+kappa_starts = [0, 0.05, 0.2, 5, 11, 15] # range of start values for kappa
 #kappa_starts = [0,0.5] # use to test code
-omega_starts = [0, 0.05, 0.5, 3, 6, 15] # range of start values for omega
+omega_starts = [0, 0.05, 0.2, 5, 11, 15] # range of start values for omega
 #omega_starts = [0,0.5] # use to test code
 
 # Run codeml (positive selection model) with different starting values		
@@ -51,7 +51,7 @@ omega_starts = [0, 0.05, 0.5, 3, 6, 15] # range of start values for omega
 #for aname in alignmentfiles:
 for aname in alignmentfiles_pos: # for reruns
 	if '.phylip' in aname:
-		#file_pos = aname.split('.')[0]
+#		file_pos = aname.split('.')[0]
 		
 		# for reruns
 		file_pos1 = aname.split('/')[6]
@@ -70,22 +70,22 @@ for aname in alignmentfiles_pos: # for reruns
 				print 'If you see this message, then the file has still NOT converged. Sigh...'
 				break
 				
-			ModelA_poscodeml_Acast(file_pos, kappa_starts[counter], omega_starts[counter])
+			ModelA_poscodeml_Ccoel(file_pos, kappa_starts[counter], omega_starts[counter])
 	
-			if 'check convergence..' in open(file_pos + '_Acast_modApos.out').read():
+			if 'check convergence..' in open(file_pos + '_Ccoel_modApos.out').read():
 				print 'Nope, try again...', file_pos
 				print '---------------------------------------'
 				
 			else: 
-				os.system('mv ' + file_pos + '_Acast_modApos.out /pylon1/bi4iflp/mlim/Run_codeml_nudna/nuDNA_codemlout_Acast/Acast_pos/Acastout_nu_pos')
-				print 'Success!!!', file_pos, ' moved to Acastout_nu_pos directory'
+				os.system('mv ' + file_pos + '_Ccoel_modApos.out /pylon1/bi4iflp/mlim/Run_codeml_nudna/nuDNA_codemlout_Ccoel/Ccoel_pos/Ccoelout_nu_pos')
+				print 'Success!!!', file_pos, ' moved to Ccoelout_nu_pos directory'
 				print '----------------------------------------------------------------'
 				break
 				
 			counter += 1
 
 # grab the lnL outputs to check if results significant, the results file will be in the Run_codeml directory (or whichever directory this script is in)
-os.system('grep lnL /pylon1/bi4iflp/mlim/Run_codeml_nudna/nuDNA_codemlout_Acast/Acast_pos/Acastout_nu_pos/*pos.out | awk \'{print $1"\t"$5}\' > /pylon1/bi4iflp/mlim/Run_codeml_nudna/nu_Acast_lnL_pos.txt')
+os.system('grep lnL /pylon1/bi4iflp/mlim/Run_codeml_nudna/nuDNA_codemlout_Ccoel/Ccoel_pos/Ccoelout_nu_pos/*pos.out | awk \'{print $1"\t"$5}\' > /pylon1/bi4iflp/mlim/Run_codeml_nudna/nu_Ccoel_lnL_pos.txt')
 
 
 

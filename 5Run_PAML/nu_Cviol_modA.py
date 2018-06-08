@@ -38,12 +38,12 @@ def ModelA_poscodeml_Cviol(element, kappastart, omegastart):
 #alignmentfiles = [f for f in os.listdir('/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/')]
 
 # FOR RERUNS:
-alignmentfiles_pos = ['/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000000953.phylip', '/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000002255.phylip', '/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000006101.phylip', '/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000009446.phylip', '/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000011747.phylip']
+alignmentfiles_pos = ['/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000002255.phylip']
 
 # Choose start values
-kappa_starts = [0, 0.5, 1, 3.5, 5, 15] # range of start values for kappa
+kappa_starts = [0, 0.6, 4, 10.5, 13, 20] # range of start values for kappa
 #kappa_starts = [0,0.5] # use to test code
-omega_starts = [0, 0.5, 1, 3.5, 5, 15] # range of start values for omega
+omega_starts = [0, 0.6, 4, 10.5, 13, 20] # range of start values for omega
 #omega_starts = [0,0.5] # use to test code
 
 # Run codeml (positive selection model) with different starting values		

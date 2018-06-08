@@ -38,10 +38,10 @@ def ModelA_nullcodeml_Pgiga(element, kappastart):
 #alignmentfiles = [f for f in os.listdir('/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/')]
 
 #FOR RERUNS:
-alignmentfiles_null = ['/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000009881.phylip', '/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000010794.phylip', '/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000011747.phylip', '/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000016470.phylip']
+alignmentfiles_null = ['/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000016470.phylip']
 
 # Choose start values
-kappa_starts = [0, 0.5, 1, 3.5, 5, 15] # range of start values for kappa
+kappa_starts = [0, 0.005, 0.2, 3, 8, 15] # range of start values for kappa
 #kappa_starts = [0,0.5] # use to test code
 
 # Run codeml (null model) with different starting values
@@ -49,11 +49,11 @@ kappa_starts = [0, 0.5, 1, 3.5, 5, 15] # range of start values for kappa
 #for aname in alignmentfiles: 
 for aname in alignmentfiles_null: # for reruns
 	if '.phylip' in aname:
-		#file_null = aname.split('.')[0]
+		file_null = aname.split('.')[0]
 				
 		# for reruns ONLY
-		file_null1 = aname.split('/')[6]
-		file_null = file_null1.split('.')[0]
+		#file_null1 = aname.split('/')[6]
+		#file_null = file_null1.split('.')[0]
 		
 		print '-----------------------------------------------------'
 		print 'File to run null model on: ', file_null

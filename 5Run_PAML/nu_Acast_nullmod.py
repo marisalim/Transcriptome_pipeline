@@ -38,10 +38,10 @@ def ModelA_nullcodeml_Acast(element, kappastart):
 #alignmentfiles = [f for f in os.listdir('/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/')]
 
 # FOR RERUNS:
-alignmentfiles_null = ['/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000002230.phylip','/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000002255.phylip','/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000009719.phylip']
+alignmentfiles_null = ['/pylon1/bi4iflp/mlim/Run_codeml_nudna/phylipforpaml/ENSTGUP00000002255.phylip']
 
 # Choose start values
-kappa_starts = [0, 0.5, 1, 3.5, 5, 15] # range of start values for kappa
+kappa_starts = [0, 0.05, 0.5, 3, 6, 15] # range of start values for kappa
 #kappa_starts = [0,0.5] # use to test code
 
 # Run codeml (null model) with different starting values
