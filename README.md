@@ -42,7 +42,7 @@ Code contributions from Sonal Singhal and Mark Phuong.
   - #### multi-branch foreground analyses:
     - nucl_modA.py (run PAML for nuclear genes; use nucl_wrapper[B,D,E,star].sh)
     - mt_modA.py (run PAML for mitochondrial genes; use mt_wrapper[2,3,B,D,E, star].sh)    
-- 4bCalc_LRT_Jan2018reanalysis.r (calculate LRT from codeml results, analyze PSGs)
+    - 4bCalc_LRT_Jan2018reanalysis.r (calculate LRT from codeml results, analyze PSGs)
 
 ---
 
