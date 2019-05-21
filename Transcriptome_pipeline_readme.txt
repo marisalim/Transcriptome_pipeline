@@ -1,6 +1,6 @@
 List of scripts and brief explanation of function. Code contributions from Sonal Singhal and Mark Phuong are noted.
 - Python scripts were written for Python2.7. All scripts were run on Mac or Linux operating systems.
-- As written, for any scripts that run 1 sample at a time, you need to manually change directory paths for each sample. Have included 1 script as an example.
+- As currently written, for any scripts that run 1 sample at a time, you need to manually change directory paths for each sample. Have included 1 script as an example.
 
 ### 1Data_filtering_cleaning: 
 1passfilterandmodifyname.py - remove reads that failed Illumina filter, edit sequence ids
@@ -36,7 +36,6 @@ nu_[species abbr]_nullmod.py - run PAML null model for nuclear genes, 1 species 
 mt_[species abbr]_modA.py - run PAML for mitochondrial genes, 1 species at a time; use mt_[species abbr]_wrapper.sh (single-branch foreground)
 nucl_modA.py - run PAML for nuclear genes; use nucl_wrapper [B,D,E,star].sh (multi-branch foreground)
 mt_modA.py - run PAML for mitochondrial genes; use mt_wrapper.sh (multi-branch foreground)
-
 
 ### 6Data_analysis:
 1aCalc_LRT_highaltsp.r - calculate LRT from codeml results, calculate corrected p-value, analyze positively selected genes (single-branch foreground)
