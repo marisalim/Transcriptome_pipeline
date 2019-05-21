@@ -4,7 +4,7 @@ Author: Marisa Lim
 
 Contact: marisalim@stonybrook.edu
 
-This repository contains code for assembling and analyzing transcriptome data.
+This repository contains code for assembling and analyzing transcriptome data used in **Parallel Molecular Evolution in Pathways, Genes, and Sites in High-Elevation Hummingbirds Revealed by Comparative Transcriptomics** by Lim, Marisa C.W., Witt, Christopher C., Graham, Catherine H., Davalos, Liliana M.
 
 ---
 List of scripts and brief explanation of function. Miscellaneous scripts (for testing, old, etc.) are in the script_sandbox/ directory.
