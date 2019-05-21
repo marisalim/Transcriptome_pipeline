@@ -64,7 +64,7 @@ Script | Step | Type
 1aCalc_LRT_highaltsp.r | calculate LRT from codeml results, calculate corrected p-value, analyze positively selected genes | single-branch foreground
 1bCalc_LRT_Jan2018reanalysis.r | calculate LRT from codeml results, analyze PSGs | multi-branch foreground
 1cGOterm_comparison_treeBstarDE.r | compare gene ontology (GO) terms for PAML results from different branch tagging scenarios | multi-branch foreground
-
+ 
 ---
 
 
