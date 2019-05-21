@@ -9,8 +9,8 @@ This repository contains code for assembling and analyzing transcriptome data us
 ---
 List of scripts and brief explanation of function. Miscellaneous scripts (for testing, old, etc.) are in the script_sandbox/ directory.
 Code contributions from Sonal Singhal and Mark Phuong.
-
-Python scripts were written for Python2.7. All scripts were run on Mac or Linux operating systems.
+- Python scripts were written for Python2.7. All scripts were run on Mac or Linux operating systems.
+- As written, for any scripts that run 1 sample at a time, you need to manually change directory paths for each sample.
 
 ### 1Data_filtering_cleaning: 
 Script  | Step
@@ -25,7 +25,7 @@ Script  | Step
 ### 2Assembly:
 Script | Step 
 --- | ---
-trinity211[sample]_wrapper.sh | batch scripts for Trinity v2.1.1 assembly
+trinity211[sample]_wrapper.sh | scripts for Trinity v2.1.1 assembly on server, 1 sample at a time
 2assemblystats.r | create histograms for assembly contigs
 
 ### 3Annotate:
@@ -51,13 +51,19 @@ rename_sp.py | edit fasta file header names |
 fasta2Nexus.py  | conversion script used by 1.0convergnexusphylip.py for fasta to nexus |
 nexus2phylip.py | conversion script used by 1.0convergnexusphylip.py for nexus to phylip |
 1.1checkcodonlength.py | make sure sequence lengths are multiples of 3, otherwise PAML will give error |
-nu_[species abbr]_modA.py | run PAML model A for nuclear genes; use nu_[species abbr]_wrapper.sh | single-branch foreground analyses
-nu_[species abbr]_nullmod.py | run PAML null model for nuclear genes; use nu_[species abbr]_null_wrapper.sh | single-branch foreground analyses
-mt_[species abbr]_modA.py | run PAML for mitochondrial genes; use mt_[species abbr]_wrapper.sh | single-branch foreground analyses
-4aCalc_LRT_highaltsp.r | calculate LRT from codeml results, calculate corrected p-value, analyze positively selected genes | single-branch foreground analyses
-nucl_modA.py | run PAML for nuclear genes; use nucl_wrapper[B,D,E,star].sh | multi-branch foreground analyses
-mt_modA.py | run PAML for mitochondrial genes; use mt_wrapper[2,3,B,D,E, star].sh | multi-branch foreground analyses
-4bCalc_LRT_Jan2018reanalysis.r | calculate LRT from codeml results, analyze PSGs | multi-branch foreground analyses
+nu_[species abbr]_modA.py | run PAML model A for nuclear genes, 1 species at a time; use nu_[species abbr]_wrapper.sh | single-branch foreground
+nu_[species abbr]_nullmod.py | run PAML null model for nuclear genes, 1 species at a time; use nu_[species abbr]_null_wrapper.sh | single-branch foreground
+mt_[species abbr]_modA.py | run PAML for mitochondrial genes, 1 species at a time; use mt_[species abbr]_wrapper.sh | single-branch foreground
+nucl_modA.py | run PAML for nuclear genes; use nucl_wrapper[B,D,E,star].sh | multi-branch foreground
+mt_modA.py | run PAML for mitochondrial genes; use mt_wrapper[2,3,B,D,E, star].sh | multi-branch foreground
+
+
+### 6Data_analysis:
+Script | Step | Type 
+--- | --- | --- |
+1aCalc_LRT_highaltsp.r | calculate LRT from codeml results, calculate corrected p-value, analyze positively selected genes | single-branch foreground
+1bCalc_LRT_Jan2018reanalysis.r | calculate LRT from codeml results, analyze PSGs | multi-branch foreground
+1cGOterm_comparison_treeBstarDE.r | compare gene ontology (GO) terms for PAML results from different branch tagging scenarios | multi-branch foreground
 
 ---
 
