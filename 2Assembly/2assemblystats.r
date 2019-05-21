@@ -1,9 +1,8 @@
 # Code to look at the contig length distributions for each Trinity assembly
-# Note: I had to redo the trinity assemblies, but I've left in the old contig distributions for comparison for now
 # Marisa Lim (c)2015
 
 # set working directory
-wd = "C:/Users/mcwlim/Dropbox/Marisacompfiles/Transcriptome files/"
+wd = "[set your working directory]"
 setwd(wd)
 
 # Load contig length input data
