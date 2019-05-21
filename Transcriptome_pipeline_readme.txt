@@ -1,12 +1,14 @@
 List of scripts and brief explanation of function. Miscellaneous scripts (for testing, old, etc.) are in the script_sandbox/ directory.
 Code contributions from Sonal Singhal and Mark Phuong.
 
+Python scripts were written for Python2.7. All scripts were run on Mac or Linux operating systems.
+
 # 1Data_filtering_cleaning: 
 1passfilterandmodifyname.py (remove reads that failed Illumina filter, edit sequence ids)
 2conc.py (concatenate read files for each sample)
-3runfastqc.py (run FastQC pre-cleanup)
+3runfastqc.py (run FastQC on reads pre-cleanup)
 4cleanreads.py or 4cleanreadsmulti.py (remove adapters and low quality reads, trim ends)
-5runfastqc_postclean.py (run FastQC post-cleanup)
+5runfastqc_postclean.py (run FastQC on reads post-cleanup)
 
 # 2Assembly:
 trinity211[sample]_wrapper.sh (batch scripts for Trinity v2.1.1 assembly)
