@@ -10,7 +10,7 @@ https://doi.org/10.1093/gbe/evz101
 
 ---
 List of scripts and brief explanation of function. Miscellaneous scripts (for testing, old, etc.) are in the script_sandbox/ directory.
-Code contributions from Sonal Singhal and Mark Phuong.
+Code contributions from Sonal Singhal and Mark Phuong noted in scripts.
 - Python scripts were written for Python2.7. All scripts were run on Mac or Linux operating systems.
 - As written, for any scripts that run 1 sample at a time, you need to manually change directory paths for each sample.
 
