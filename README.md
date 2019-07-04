@@ -57,6 +57,10 @@ mt_[species abbr]_modA.py | run PAML for mitochondrial genes, 1 species at a tim
 nucl_modA.py | run PAML for nuclear genes; use nucl_wrapper[B,D,E,star].sh | multi-branch foreground
 mt_modA.py | run PAML for mitochondrial genes; use mt_wrapper[2,3,B,D,E, star].sh | multi-branch foreground
 
+#### 5Run_PAML/ETEtoolkit_scripts:
+Script | Step 
+--- | ---
+test_ete[].sh | batch wrapper scripts to run ete toolkit for permutation tests
 
 ### 6Data_analysis:
 Script | Step | Type 
