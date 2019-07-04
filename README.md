@@ -6,6 +6,8 @@ Contact: marisalim@stonybrook.edu
 
 This repository contains code for assembling and analyzing transcriptome data used in **Parallel Molecular Evolution in Pathways, Genes, and Sites in High-Elevation Hummingbirds Revealed by Comparative Transcriptomics** by Lim, Marisa C.W., Witt, Christopher C., Graham, Catherine H., Davalos, Liliana M.
 
+https://doi.org/10.1093/gbe/evz101
+
 ---
 List of scripts and brief explanation of function. Miscellaneous scripts (for testing, old, etc.) are in the script_sandbox/ directory.
 Code contributions from Sonal Singhal and Mark Phuong.
